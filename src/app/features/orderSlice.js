@@ -1,0 +1,131 @@
+import { createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+const orderSlice = createSlice({
+  name: "order",
+  initialState: {
+    data: [],
+    isLoading: false,
+    error: null,
+    selectedOrder: null, // State for fetching a order by ID
+  },
+  reducers: {
+    setOrderData: (state, action) => {
+      state.data = action.payload.categories;
+      state.isLoading = false;
+      state.error = null;
+    },
+    setOrderLoading: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    setOrderError: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+    setSelectedOrder: (state, action) => {
+      state.selectedOrder = action.payload;
+      state.isLoading = false;
+      state.error = null;
+    },
+  },
+});
+
+export const {
+  setOrderData,
+  setOrderLoading,
+  setOrderError,
+  setSelectedOrder,
+} = orderSlice.actions;
+
+// Fetch all categories
+export const fetchOrderData = () => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    const response = await axios.get(
+      import.meta.env.VITE_BASE_URL + "order/getAllOrders"
+    );
+    dispatch(setOrderData(response.data.data));
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Fetch order by ID
+export const fetchOrderById = (orderId) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    const response = await axios.get(
+      import.meta.env.VITE_BASE_URL + `order/getOrder/${orderId}`
+    );
+    dispatch(setSelectedOrder(response.data.data));
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Add a new order (no separate reducer)
+export const addOrder = (newOrder) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    await axios.post(
+      import.meta.env.VITE_BASE_URL + "order/addOrder",
+      newOrder
+    );
+    // Re-fetch categories after adding a new one
+    dispatch(fetchOrderData());
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Edit a order (no separate reducer)
+export const editOrder = (orderId, updatedData) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    await axios.put(
+      import.meta.env.VITE_BASE_URL + `order/updateOrder/${orderId}`,
+      updatedData
+    );
+    // Re-fetch categories after updating
+    dispatch(fetchOrderData());
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Delete a order (no separate reducer)
+export const deleteOrder = (orderId) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    await axios.delete(
+      import.meta.env.VITE_BASE_URL + `order/deleteOrder/${orderId}`
+    );
+    // Re-fetch categories after deletion
+    dispatch(fetchOrderData());
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Remove a order (no separate reducer)
+export const removeOrder = (orderId) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    await axios.put(
+      import.meta.env.VITE_BASE_URL + `order/removeOrder/${orderId}`
+    );
+    // Re-fetch categories after deletion
+    dispatch(fetchOrderData());
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Selectors
+export const selectOrderData = (state) => state.order.data;
+export const selectOrderLoading = (state) => state.order.isLoading;
+export const selectOrderError = (state) => state.order.error;
+export const selectSelectedOrder = (state) => state.order.selectedOrder;
+
+export default orderSlice.reducer;
