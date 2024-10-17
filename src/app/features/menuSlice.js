@@ -6,6 +6,7 @@ const iconMap = {
   Categories: "BiCategoryAlt",
   Products: "FaProductHunt",
   Orders: "CiShop",
+  Address: "FaRegAddressCard",
   Coupons: "TbRosetteDiscount",
   Features: "MdOutlineFeaturedPlayList",
 };
@@ -34,6 +35,7 @@ export const fetchLinkItems = () => async (dispatch) => {
       { module: "Categories", pageRoute: "/categories" },
       { module: "Products", pageRoute: "/products" },
       { module: "Orders", pageRoute: "/orders" },
+      { module: "Address", pageRoute: "/user/address" },
       { module: "Coupons", pageRoute: "/coupons" },
       { module: "Features", pageRoute: "/features" },
     ].map((item) => ({

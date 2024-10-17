@@ -11,7 +11,7 @@ const orderSlice = createSlice({
   },
   reducers: {
     setOrderData: (state, action) => {
-      state.data = action.payload.categories;
+      state.data = action.payload.orders;
       state.isLoading = false;
       state.error = null;
     },
@@ -43,7 +43,7 @@ export const fetchOrderData = () => async (dispatch) => {
   dispatch(setOrderLoading());
   try {
     const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + "order/getAllOrders"
+      import.meta.env.VITE_BASE_URL + "user/order/getAllOrders"
     );
     dispatch(setOrderData(response.data.data));
   } catch (error) {
@@ -56,7 +56,20 @@ export const fetchOrderById = (orderId) => async (dispatch) => {
   dispatch(setOrderLoading());
   try {
     const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + `order/getOrder/${orderId}`
+      import.meta.env.VITE_BASE_URL + `user/order/getOrder/${orderId}`
+    );
+    dispatch(setSelectedOrder(response.data.data));
+  } catch (error) {
+    dispatch(setOrderError(error.message));
+  }
+};
+
+// Fetch order by ID
+export const fetchOrderByUserId = (userId) => async (dispatch) => {
+  dispatch(setOrderLoading());
+  try {
+    const response = await axios.get(
+      import.meta.env.VITE_BASE_URL + `user/order/getUserOrders/${userId}`
     );
     dispatch(setSelectedOrder(response.data.data));
   } catch (error) {
@@ -66,10 +79,10 @@ export const fetchOrderById = (orderId) => async (dispatch) => {
 
 // Add a new order (no separate reducer)
 export const addOrder = (newOrder) => async (dispatch) => {
-  dispatch(setOrderLoading());
+  // dispatch(setOrderLoading());
   try {
     await axios.post(
-      import.meta.env.VITE_BASE_URL + "order/addOrder",
+      import.meta.env.VITE_BASE_URL + "user/order/addOrder",
       newOrder
     );
     // Re-fetch categories after adding a new one
@@ -81,10 +94,10 @@ export const addOrder = (newOrder) => async (dispatch) => {
 
 // Edit a order (no separate reducer)
 export const editOrder = (orderId, updatedData) => async (dispatch) => {
-  dispatch(setOrderLoading());
+  // dispatch(setOrderLoading());
   try {
     await axios.put(
-      import.meta.env.VITE_BASE_URL + `order/updateOrder/${orderId}`,
+      import.meta.env.VITE_BASE_URL + `user/order/updateOrder/${orderId}`,
       updatedData
     );
     // Re-fetch categories after updating
@@ -96,10 +109,10 @@ export const editOrder = (orderId, updatedData) => async (dispatch) => {
 
 // Delete a order (no separate reducer)
 export const deleteOrder = (orderId) => async (dispatch) => {
-  dispatch(setOrderLoading());
+  // dispatch(setOrderLoading());
   try {
     await axios.delete(
-      import.meta.env.VITE_BASE_URL + `order/deleteOrder/${orderId}`
+      import.meta.env.VITE_BASE_URL + `user/order/deleteOrder/${orderId}`
     );
     // Re-fetch categories after deletion
     dispatch(fetchOrderData());
@@ -113,7 +126,7 @@ export const removeOrder = (orderId) => async (dispatch) => {
   dispatch(setOrderLoading());
   try {
     await axios.put(
-      import.meta.env.VITE_BASE_URL + `order/removeOrder/${orderId}`
+      import.meta.env.VITE_BASE_URL + `user/order/removeOrder/${orderId}`
     );
     // Re-fetch categories after deletion
     dispatch(fetchOrderData());

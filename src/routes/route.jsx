@@ -18,6 +18,7 @@ import Features from "../components/Features/Features";
 import CategoryList from "../components/Category/CategoryList";
 
 import Not_Found from "../components/Not_Found/Not_Found";
+import Address from "../components/Address/Address";
 
 const Routing = () => {
   return (
@@ -39,6 +40,7 @@ const Routing = () => {
           <Route path="/categories" element={<CategoryList />} />
           <Route path="/coupons" element={<Coupons />} />
           <Route path="/orders" element={<OrderList />} />
+          <Route path="/user/address" element={<Address />} />
           <Route path="/features" element={<Features />} />
         </Route>
         <Route path="*" element={<Not_Found />} />

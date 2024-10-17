@@ -6,7 +6,6 @@ import { fetchLinkItems } from "../../app/features/menuSlice";
 
 // Import icons
 import { FaUsers } from "react-icons/fa";
-import { SlControlEnd } from "react-icons/sl";
 import { RiDashboardLine } from "react-icons/ri";
 import { BiLogOut } from "react-icons/bi";
 import { FaProductHunt } from "react-icons/fa";
@@ -15,6 +14,7 @@ import { CiShop } from "react-icons/ci";
 import { TbRosetteDiscount } from "react-icons/tb";
 import { MdOutlineFeaturedPlayList } from "react-icons/md";
 import { TfiControlEject } from "react-icons/tfi";
+import { FaRegAddressCard } from "react-icons/fa";
 
 
 const iconComponents = {
@@ -23,6 +23,7 @@ const iconComponents = {
   BiCategoryAlt,
   FaProductHunt,
   CiShop,
+  FaRegAddressCard,
   TbRosetteDiscount,
   MdOutlineFeaturedPlayList,
 };

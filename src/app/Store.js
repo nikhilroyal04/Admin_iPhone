@@ -7,6 +7,8 @@ import userReducer from "../app/features/userSlice";
 import productReducer from "../app/features/productSlice";
 import orderReducer from "../app/features/orderSlice";
 import dashboardReducer from "../app/features/dashSlice";
+import addressReducer from "../app/features/addressSlice";
+import featureReducer from "../app/features/featureSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     user: userReducer,
     product: productReducer,
     order: orderReducer,
+    address: addressReducer,
+    feature: featureReducer,
   },
 });
 
