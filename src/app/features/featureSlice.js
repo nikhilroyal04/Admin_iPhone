@@ -64,19 +64,6 @@ export const fetchFeatureById = (featureId) => async (dispatch) => {
   }
 };
 
-// Fetch feature by ID
-export const fetchFeatureByUserId = (userId) => async (dispatch) => {
-  dispatch(setFeatureLoading());
-  try {
-    const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + `feature/getUserFeatures/${userId}`
-    );
-    dispatch(setSelectedFeature(response.data.data));
-  } catch (error) {
-    dispatch(setFeatureError(error.message));
-  }
-};
-
 // Add a new feature (no separate reducer)
 export const addFeature = (newFeature) => async (dispatch) => {
   // dispatch(setFeatureLoading());
@@ -95,6 +82,8 @@ export const addFeature = (newFeature) => async (dispatch) => {
 // Edit a feature (no separate reducer)
 export const editFeature = (featureId, updatedData) => async (dispatch) => {
   // dispatch(setFeatureLoading());
+  console.log("id",featureId);
+  console.log("data fir update",updatedData);
   try {
     await axios.put(
       import.meta.env.VITE_BASE_URL + `feature/updateFeature/${featureId}`,

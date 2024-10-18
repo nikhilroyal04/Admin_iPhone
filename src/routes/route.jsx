@@ -15,6 +15,8 @@ import AddProduct from "../components/Products/AddProduct";
 import Coupons from "../components/Coupons/Coupons";
 import OrderList from "../components/Orders/OrderList";
 import Features from "../components/Features/Features";
+import AddFeature from "../components/Features/AddFeature";
+import EditFeature from "../components/Features/EditFeature";
 import CategoryList from "../components/Category/CategoryList";
 
 import Not_Found from "../components/Not_Found/Not_Found";
@@ -42,6 +44,8 @@ const Routing = () => {
           <Route path="/orders" element={<OrderList />} />
           <Route path="/user/address" element={<Address />} />
           <Route path="/features" element={<Features />} />
+          <Route path="/features/addFeature" element={<AddFeature />} />
+          <Route path="/features/editFeature/:id" element={<EditFeature />} />
         </Route>
         <Route path="*" element={<Not_Found />} />
       </Routes>

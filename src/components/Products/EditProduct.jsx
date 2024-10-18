@@ -378,14 +378,6 @@ const EditProduct = () => {
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
-            <FormLabel>Features</FormLabel>
-            <Input
-              name="features"
-              defaultValue={product.features.join(", ")} // Accepts multiple features as a comma-separated string
-              placeholder="Enter features separated by commas"
-            />
-          </FormControl>
-          <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Compatibility</FormLabel>
             <Input
               name="compatibility"

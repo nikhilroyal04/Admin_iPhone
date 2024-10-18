@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -16,16 +16,38 @@ import {
   Flex,
   Text,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
-import { addProduct } from "../../app/features/productSlice"; // Ensure this action exists
+import { useDispatch, useSelector } from "react-redux";
+import { addProduct } from "../../app/features/productSlice";
+import {
+  selectCategoryData,
+  selectCategoryError,
+  selectCategoryLoading,
+  fetchCategoryData,
+} from "../../app/features/categorySlice";
 import { AddIcon } from "@chakra-ui/icons";
 import TimeConversion from "../../utils/timeConversion";
 import { useNavigate } from "react-router-dom";
+import Loader from "../Not_Found/Loader";
+import Error502 from "../Not_Found/Error502";
+import {
+  selectFeatureData,
+  fetchFeatureData,
+} from "../../app/features/featureSlice";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();
+
+  const categoryData = useSelector(selectCategoryData);
+  const featureData = useSelector(selectFeatureData);
+  const error = useSelector(selectCategoryError);
+  const isLoading = useSelector(selectCategoryLoading);
+
+  useEffect(() => {
+    dispatch(fetchCategoryData());
+    dispatch(fetchFeatureData());
+  }, [dispatch]);
 
   // State for form data
   const [formData, setFormData] = useState({
@@ -133,6 +155,15 @@ const AddProduct = () => {
       ...newMediaFiles.map((media) => media.src),
     ]); // Append new previews to existing
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  // Render error message if there is an error
+  if (error) {
+    return <Error502 />;
+  }
 
   return (
     <Box p={4} bg="white" borderRadius="md" boxShadow="md">
@@ -342,13 +373,19 @@ const AddProduct = () => {
           </GridItem>
           <GridItem>
             <FormControl mb={4}>
-              <FormLabel>Features</FormLabel>
-              <Input
+              <FormLabel>Select Features</FormLabel>
+              <Select
                 name="features"
                 value={formData.features}
                 onChange={handleInputChange}
-                placeholder="Comma separated values"
-              />
+                placeholder="Select feature"
+              >
+                {featureData.map((feature) => (
+                  <option key={feature._id} value={feature.description}>
+                    {feature.name}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
           </GridItem>
           <GridItem>
@@ -436,13 +473,19 @@ const AddProduct = () => {
           </GridItem>
           <GridItem>
             <FormControl mb={4}>
-              <FormLabel>Category Name</FormLabel>
-              <Input
+              <FormLabel>Select Category</FormLabel>
+              <Select
                 name="categoryName"
                 value={formData.categoryName}
                 onChange={handleInputChange}
-                required
-              />
+                placeholder="Select category"
+              >
+                {categoryData.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
           </GridItem>
           <GridItem>

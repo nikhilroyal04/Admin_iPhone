@@ -15,7 +15,7 @@ const productSlice = createSlice({
     setProductData: (state, action) => {
       state.data = action.payload.products;
       state.totalPages = action.payload.totalPages;
-      state.currentPage = action.payload.currentPage; 
+      state.currentPage = action.payload.currentPage;
       state.isLoading = false;
       state.error = null;
     },
@@ -44,7 +44,7 @@ export const {
 
 // Fetch all categories
 export const fetchProductData =
-  (page = 1) =>
+  (page = 1, selectedCategory = "", searchTerm = "") =>
   async (dispatch) => {
     dispatch(setProductLoading());
     try {
@@ -54,6 +54,8 @@ export const fetchProductData =
           params: {
             page,
             limit: 20,
+            categoryName: selectedCategory,
+            model: searchTerm,
           },
         }
       );

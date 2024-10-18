@@ -94,18 +94,26 @@ export default function Address() {
 
   const renderPaginationButtons = () => {
     const pages = [];
-
     if (currentPage > 2) {
       pages.push(
-        <Button key="first" onClick={handleFirstPage}>
+        <Button
+          key="first"
+          onClick={handleFirstPage}
+          variant="outline"
+          color="black"
+        >
           First
         </Button>
       );
     }
-
     if (currentPage > 1) {
       pages.push(
-        <Button key="prev" onClick={handlePrevPage}>
+        <Button
+          key="prev"
+          onClick={handlePrevPage}
+          variant="outline"
+          color="black"
+        >
           Previous
         </Button>
       );
@@ -117,7 +125,12 @@ export default function Address() {
 
     if (startPage > 1) {
       pages.push(
-        <Button key="1" onClick={() => handlePageChange(1)}>
+        <Button
+          key="1"
+          onClick={() => handlePageChange(1)}
+          variant="solid"
+          color="black"
+        >
           1
         </Button>
       );
@@ -131,7 +144,9 @@ export default function Address() {
         <Button
           key={i}
           onClick={() => handlePageChange(i)}
-          colorScheme={i === currentPage ? "teal" : undefined}
+          colorScheme={i === currentPage ? "blue" : "gray"}
+          variant="solid"
+          color={i === currentPage ? "black" : "black"}
           disabled={i === currentPage}
         >
           {i}
@@ -144,7 +159,12 @@ export default function Address() {
         pages.push(<Text key="dots2">...</Text>);
       }
       pages.push(
-        <Button key={totalPages} onClick={() => handlePageChange(totalPages)}>
+        <Button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          variant="solid"
+          color="black"
+        >
           {totalPages}
         </Button>
       );
@@ -152,7 +172,12 @@ export default function Address() {
 
     if (currentPage < totalPages) {
       pages.push(
-        <Button key="next" onClick={handleNextPage}>
+        <Button
+          key="next"
+          onClick={handleNextPage}
+          variant="outline"
+          color="black"
+        >
           Next
         </Button>
       );
@@ -160,7 +185,13 @@ export default function Address() {
 
     if (totalPages > 2) {
       pages.push(
-        <Button key="last" onClick={handleLastPage}>
+        <Button
+          key="last"
+          onClick={handleLastPage}
+          colorScheme="black"
+          variant="outline"
+          color="white"
+        >
           Last
         </Button>
       );
@@ -233,11 +264,9 @@ export default function Address() {
           <Text>No addresses found.</Text>
         )}
 
-        {addressData.length >= 20 && (
-          <HStack spacing={4} justifyContent="center" mt={6}>
-            {renderPaginationButtons()}
-          </HStack>
-        )}
+        <HStack spacing={4} justifyContent="center" mt={6}>
+          {renderPaginationButtons()}
+        </HStack>
       </SimpleGrid>
 
       {/* Delete Confirmation Modal */}

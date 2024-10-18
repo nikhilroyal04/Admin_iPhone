@@ -10,24 +10,44 @@ import {
   VStack,
   Tag,
   Heading,
+  IconButton,
+  HStack,
+  Flex,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   fetchFeatureData,
+  deleteFeature,
   selectFeatureData,
   selectFeatureError,
   selectFeatureLoading,
 } from "../../app/features/featureSlice";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
+import { useNavigate } from "react-router-dom";
 
 export default function Features() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Selectors to get feature data, loading state, and error state from the Redux store
   const featureData = useSelector(selectFeatureData);
   const isLoading = useSelector(selectFeatureLoading);
   const error = useSelector(selectFeatureError);
+
+  // Modal state for delete confirmation
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [selectedFeatureId, setSelectedFeatureId] = useState(null);
 
   // Fetch feature data when the component mounts
   useEffect(() => {
@@ -44,13 +64,40 @@ export default function Features() {
     return <Error502 />;
   }
 
-  console.log("features", featureData);
+  // Handle delete feature
+  const handleDelete = (id) => {
+    setLoadingDelete(true);
+    dispatch(deleteFeature(id))
+      .then(() => {
+        setLoadingDelete(false);
+        onClose();
+      })
+      .catch(() => setLoadingDelete(false));
+  };
+
+  // Open modal for delete confirmation
+  const confirmDelete = (id, event) => {
+    event.stopPropagation(); // Prevent accordion from opening
+    setSelectedFeatureId(id);
+    onOpen();
+  };
+
+  // Handle edit button click
+  const handleEdit = (id, event) => {
+    event.stopPropagation(); // Prevent accordion from opening
+    navigate(`editFeature/${id}`);
+  };
 
   return (
     <Box p={4}>
-      <Heading as="h2" size="lg" mb={6}>
-        Features
-      </Heading>
+      <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
+        <Text as="h2" fontSize="2xl">
+          Feature List
+        </Text>
+        <Button colorScheme="teal" onClick={() => navigate("addFeature")}>
+          Add Feature
+        </Button>
+      </Flex>
       <Accordion allowMultiple>
         {featureData.length > 0 ? (
           featureData.map((feature) => (
@@ -61,6 +108,24 @@ export default function Features() {
                     {feature.name}
                   </Text>
                 </Box>
+
+                {/* Spacing between buttons and accordion icon */}
+                <HStack spacing={2} mr={5}>
+                  <IconButton
+                    aria-label="Edit feature"
+                    icon={<EditIcon />}
+                    size="sm"
+                    onClick={(event) => handleEdit(feature._id, event)}
+                  />
+                  <IconButton
+                    aria-label="Delete feature"
+                    icon={<DeleteIcon />}
+                    size="sm"
+                    colorScheme="red"
+                    onClick={(event) => confirmDelete(feature._id, event)}
+                  />
+                </HStack>
+
                 <AccordionIcon />
               </AccordionButton>
               <AccordionPanel pb={4}>
@@ -92,6 +157,31 @@ export default function Features() {
           <Text>No features found.</Text>
         )}
       </Accordion>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete Feature</ModalHeader>
+          <ModalBody>
+            Are you sure you want to delete this feature? This action cannot be
+            undone.
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={onClose} mr={2}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="red"
+              onClick={() => handleDelete(selectedFeatureId)}
+              isLoading={loadingDelete}
+              loadingText="Deleting"
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
