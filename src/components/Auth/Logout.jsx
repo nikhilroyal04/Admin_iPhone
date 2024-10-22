@@ -1,51 +1,59 @@
-import React from 'react';
-import {
-  Box,
-  Button,
-  Heading,
-  Text,
-  useToast,
-} from '@chakra-ui/react';
+import React from "react";
+import { Box, Button, Heading, Text, Link, Flex } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
-export default function Logout() {
-  const toast = useToast();
+export default function LogoutMessage() {
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Perform logout logic here
-    // For example, clear user authentication data from local storage or context
-    localStorage.removeItem('userToken'); // Example of clearing token
+  React.useEffect(() => {
+    localStorage.removeItem("userToken");
 
-    // Show a toast notification to indicate successful logout
-    toast({
-      title: 'Logout Successful',
-      description: 'You have been logged out.',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+    const timeout = setTimeout(() => {
+      navigate("/login");
+    }, 2000);
 
-    // Optionally redirect the user or update state
-    // e.g., window.location.href = '/login';
-  };
+    return () => clearTimeout(timeout);
+  }, [navigate]);
 
   return (
-    <Box
-      maxWidth="400px"
-      mx="auto"
-      mt="100px"
-      p={6}
-      borderWidth={1}
-      borderRadius="lg"
-      boxShadow="lg"
-      textAlign="center"
+    <Flex
+      minHeight="100vh"
+      align="center"
+      justify="center"
+      bg="gray.100" // Optional: adds a background color for contrast
     >
-      <Heading as="h2" size="lg" mb={6}>
-        Logout
-      </Heading>
-      <Text mb={4}>Are you sure you want to log out?</Text>
-      <Button colorScheme="red" onClick={handleLogout}>
-        Logout
-      </Button>
-    </Box>
+      <Box
+        maxWidth="400px"
+        p={6}
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="lg"
+        textAlign="center"
+        bg="white"
+        transition="all 0.3s ease"
+        _hover={{
+          boxShadow: "xl",
+          transform: "translateY(-2px)",
+          bg: "gray.50",
+        }}
+      >
+        <Heading as="h2" size="xl" mb={4} color="teal.600">
+          Logged out.
+        </Heading>
+        <Text mb={4} fontSize="md" color="gray.500">
+          You will be redirected to the login page shortly.
+        </Text>
+        <Link href="/login">
+          <Button
+            colorScheme="blue"
+            variant="outline"
+            _hover={{ bg: "blue.500", color: "white" }}
+            size="lg"
+          >
+            Go to Login
+          </Button>
+        </Link>
+      </Box>
+    </Flex>
   );
 }

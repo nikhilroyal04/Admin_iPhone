@@ -7,11 +7,15 @@ const orderSlice = createSlice({
     data: [],
     isLoading: false,
     error: null,
-    selectedOrder: null, // State for fetching a order by ID
+    currentPage: 1,
+    totalPages: 1,
+    selectedOrder: null,
   },
   reducers: {
     setOrderData: (state, action) => {
       state.data = action.payload.orders;
+      state.totalPages = action.payload.totalPages;
+      state.currentPage = action.payload.currentPage;
       state.isLoading = false;
       state.error = null;
     },
@@ -39,17 +43,33 @@ export const {
 } = orderSlice.actions;
 
 // Fetch all categories
-export const fetchOrderData = () => async (dispatch) => {
-  dispatch(setOrderLoading());
-  try {
-    const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + "user/order/getAllOrders"
-    );
-    dispatch(setOrderData(response.data.data));
-  } catch (error) {
-    dispatch(setOrderError(error.message));
-  }
-};
+export const fetchOrderData =
+  (page = 1) =>
+  async (dispatch) => {
+    dispatch(setOrderLoading());
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_BASE_URL + "user/order/getAllOrders",
+        {
+          params: {
+            page,
+            limit: 20,
+          },
+        }
+      );
+      const { orders, totalPages } = response.data.data;
+
+      dispatch(
+        setOrderData({
+          orders,
+          totalPages,
+          currentPage: page,
+        })
+      );
+    } catch (error) {
+      dispatch(setOrderError(error.message));
+    }
+  };
 
 // Fetch order by ID
 export const fetchOrderById = (orderId) => async (dispatch) => {
@@ -140,5 +160,6 @@ export const selectOrderData = (state) => state.order.data;
 export const selectOrderLoading = (state) => state.order.isLoading;
 export const selectOrderError = (state) => state.order.error;
 export const selectSelectedOrder = (state) => state.order.selectedOrder;
+export const selectTotalPages = (state) => state.order.totalPages;
 
 export default orderSlice.reducer;

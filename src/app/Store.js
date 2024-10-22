@@ -9,6 +9,7 @@ import orderReducer from "../app/features/orderSlice";
 import dashboardReducer from "../app/features/dashSlice";
 import addressReducer from "../app/features/addressSlice";
 import featureReducer from "../app/features/featureSlice";
+import authReducer from "../app/features/authSlice";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     order: orderReducer,
     address: addressReducer,
     feature: featureReducer,
+    auth: authReducer,
   },
 });
 

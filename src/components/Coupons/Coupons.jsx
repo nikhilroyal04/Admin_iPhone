@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Box,
-  Spinner,
   Text,
-  Alert,
-  AlertIcon,
   Table,
   Thead,
   Tbody,
@@ -24,6 +21,7 @@ import {
   useDisclosure,
   Flex,
   Select,
+  HStack,
 } from "@chakra-ui/react";
 import {
   selectCouponData,
@@ -31,6 +29,7 @@ import {
   selectCouponLoading,
   fetchCouponData,
   removeCoupon,
+  selectTotalPages,
 } from "../../app/features/couponSlice";
 import AddCoupon from "./AddCoupon";
 import EditCoupon from "./EditCoupon";
@@ -65,13 +64,15 @@ export default function Coupons() {
   const [couponToDelete, setCouponToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const couponData = useSelector(selectCouponData);
+  const totalPages = useSelector(selectTotalPages);
   const isLoading = useSelector(selectCouponLoading);
   const error = useSelector(selectCouponError);
 
   useEffect(() => {
-    dispatch(fetchCouponData());
+    dispatch(fetchCouponData(currentPage));
   }, [dispatch]);
 
   const filteredCoupons = filterStatus
@@ -112,13 +113,135 @@ export default function Coupons() {
     onDetailsOpen(); // Open details modal
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleFirstPage = () => handlePageChange(1);
+  const handleLastPage = () => handlePageChange(totalPages);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+  };
+  const handlePrevPage = () => {
+    if (currentPage > 1) handlePageChange(currentPage - 1);
+  };
+
+  const renderPaginationButtons = () => {
+    const pages = [];
+    if (currentPage > 2) {
+      pages.push(
+        <Button
+          key="first"
+          onClick={handleFirstPage}
+          variant="outline"
+          color="black"
+        >
+          First
+        </Button>
+      );
+    }
+    if (currentPage > 1) {
+      pages.push(
+        <Button
+          key="prev"
+          onClick={handlePrevPage}
+          variant="outline"
+          color="black"
+        >
+          Previous
+        </Button>
+      );
+    }
+
+    const pageRange = 3;
+    let startPage = Math.max(1, currentPage - pageRange);
+    let endPage = Math.min(totalPages, currentPage + pageRange);
+
+    if (startPage > 1) {
+      pages.push(
+        <Button
+          key="1"
+          onClick={() => handlePageChange(1)}
+          variant="solid"
+          color="black"
+        >
+          1
+        </Button>
+      );
+      if (startPage > 2) {
+        pages.push(<Text key="dots1">...</Text>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          colorScheme={i === currentPage ? "blue" : "gray"}
+          variant="solid"
+          color={i === currentPage ? "black" : "black"}
+          disabled={i === currentPage}
+        >
+          {i}
+        </Button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(<Text key="dots2">...</Text>);
+      }
+      pages.push(
+        <Button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          variant="solid"
+          color="black"
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+
+    if (currentPage < totalPages) {
+      pages.push(
+        <Button
+          key="next"
+          onClick={handleNextPage}
+          variant="outline"
+          color="black"
+        >
+          Next
+        </Button>
+      );
+    }
+
+    if (totalPages > 2) {
+      pages.push(
+        <Button
+          key="last"
+          onClick={handleLastPage}
+          colorScheme="black"
+          variant="outline"
+          color="white"
+        >
+          Last
+        </Button>
+      );
+    }
+
+    return pages;
+  };
+
   return (
     <Box p={4} overflow="auto">
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
         <Text as="h2" fontSize="2xl">
           Coupons
         </Text>
-        <Flex spacing={4}>
+        <Flex spacing={4} mt={2}>
           <Select
             placeholder="Filter by status"
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -133,82 +256,109 @@ export default function Coupons() {
           </Button>
         </Flex>
       </Flex>
-      <Table variant="simple" overflow="auto">
-        <Thead>
-          <Tr>
-            <Th>Code</Th>
-            <Th>Type</Th>
-            <Th>Discount</Th>
-            <Th>Used</Th>
-            <Th>Limit</Th>
-            <Th>Expiry Date</Th>
-            <Th>Status</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {filteredCoupons && filteredCoupons.length > 0 ? (
-            filteredCoupons.map((coupon) => (
-              <Tr key={coupon._id} cursor="pointer" _hover={{ bg: "gray.100" }}>
-                <Td
-                  onClick={() => handleViewDetails(coupon)} // Handle view details
-                  textDecoration="underline"
-                  _hover={{ color: "blue" }}
+      <Box
+        overflow="auto"
+        css={{
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+            backgroundColor: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#cbd5e0",
+            borderRadius: "10px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#a0aec0",
+          },
+        }}
+      >
+        <Table variant="simple" overflow="auto">
+          <Thead>
+            <Tr>
+              <Th>Code</Th>
+              <Th>Type</Th>
+              <Th>Discount</Th>
+              <Th>Used</Th>
+              <Th>Limit</Th>
+              <Th>Expiry Date</Th>
+              <Th>Status</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filteredCoupons && filteredCoupons.length > 0 ? (
+              filteredCoupons.map((coupon) => (
+                <Tr
+                  key={coupon._id}
+                  cursor="pointer"
+                  _hover={{ bg: "gray.100" }}
                 >
-                  {coupon.code}
-                </Td>
-                <Td>{coupon.discountType}</Td>
-                <Td>{coupon.discountValue}</Td>
-                <Td>{coupon.currentRedemptions}</Td>
-                <Td>{coupon.maxRedemptions}</Td>
-                <Td>{TimeConversion.unixTimeToRealTime(coupon.expiryDate)}</Td>
-                <Td>
-                  <Badge
-                    colorScheme={coupon.status === "Active" ? "green" : "red"}
-                    borderRadius="full"
-                    px={3}
-                    py={1}
+                  <Td
+                    onClick={() => handleViewDetails(coupon)} // Handle view details
+                    textDecoration="underline"
+                    _hover={{ color: "blue" }}
                   >
-                    {coupon.status}
-                  </Badge>
-                </Td>
-                <Td>
-                  <Flex>
-                    <Button
-                      colorScheme="blue"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(coupon); // Open edit modal
-                      }}
-                      mr={2}
+                    {coupon.code}
+                  </Td>
+                  <Td>{coupon.discountType}</Td>
+                  <Td>{coupon.discountValue}</Td>
+                  <Td>{coupon.currentRedemptions}</Td>
+                  <Td>{coupon.maxRedemptions}</Td>
+                  <Td>
+                    {TimeConversion.unixTimeToRealTime(coupon.expiryDate)}
+                  </Td>
+                  <Td>
+                    <Badge
+                      colorScheme={coupon.status === "Active" ? "green" : "red"}
+                      borderRadius="full"
+                      px={3}
+                      py={1}
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      colorScheme="red"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCouponToDelete(coupon._id);
-                        onDeleteOpen(); // Open delete confirmation modal
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </Flex>
+                      {coupon.status}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Flex>
+                      <Button
+                        colorScheme="blue"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(coupon); // Open edit modal
+                        }}
+                        mr={2}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        colorScheme="red"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCouponToDelete(coupon._id);
+                          onDeleteOpen(); // Open delete confirmation modal
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Flex>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={8} textAlign="center">
+                  No coupons found.
                 </Td>
               </Tr>
-            ))
-          ) : (
-            <Tr>
-              <Td colSpan={8} textAlign="center">
-                No coupons found.
-              </Td>
-            </Tr>
-          )}
-        </Tbody>
-      </Table>
+            )}
+          </Tbody>
+        </Table>
+      </Box>
+      <HStack spacing={4} justifyContent="center" mt={6}>
+        {renderPaginationButtons()}
+      </HStack>
 
       {/* Modal for displaying coupon details */}
       <Modal isOpen={isDetailsOpen} onClose={onDetailsClose}>

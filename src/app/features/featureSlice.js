@@ -7,11 +7,15 @@ const featureSlice = createSlice({
     data: [],
     isLoading: false,
     error: null,
-    selectedFeature: null, // State for fetching a feature by ID
+    currentPage: 1,
+    totalPages: 1,
+    selectedFeature: null,
   },
   reducers: {
     setFeatureData: (state, action) => {
-      state.data = action.payload;
+      state.data = action.payload.features;
+      state.totalPages = action.payload.totalPages;
+      state.currentPage = action.payload.currentPage;
       state.isLoading = false;
       state.error = null;
     },
@@ -39,17 +43,25 @@ export const {
 } = featureSlice.actions;
 
 // Fetch all categories
-export const fetchFeatureData = () => async (dispatch) => {
-  dispatch(setFeatureLoading());
-  try {
-    const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + "feature/getAllFeatures"
-    );
-    dispatch(setFeatureData(response.data.data));
-  } catch (error) {
-    dispatch(setFeatureError(error.message));
-  }
-};
+export const fetchFeatureData =
+  (page = 1) =>
+  async (dispatch) => {
+    dispatch(setFeatureLoading());
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_BASE_URL + "feature/getAllFeatures",
+        {
+          params: {
+            page,
+            limit: 20,
+          },
+        }
+      );
+      dispatch(setFeatureData(response.data.data));
+    } catch (error) {
+      dispatch(setFeatureError(error.message));
+    }
+  };
 
 // Fetch feature by ID
 export const fetchFeatureById = (featureId) => async (dispatch) => {
@@ -82,8 +94,7 @@ export const addFeature = (newFeature) => async (dispatch) => {
 // Edit a feature (no separate reducer)
 export const editFeature = (featureId, updatedData) => async (dispatch) => {
   // dispatch(setFeatureLoading());
-  console.log("id",featureId);
-  console.log("data fir update",updatedData);
+
   try {
     await axios.put(
       import.meta.env.VITE_BASE_URL + `feature/updateFeature/${featureId}`,
@@ -129,5 +140,6 @@ export const selectFeatureData = (state) => state.feature.data;
 export const selectFeatureLoading = (state) => state.feature.isLoading;
 export const selectFeatureError = (state) => state.feature.error;
 export const selectSelectedFeature = (state) => state.feature.selectedFeature;
+export const selectTotalPages = (state) => state.feature.totalPages;
 
 export default featureSlice.reducer;

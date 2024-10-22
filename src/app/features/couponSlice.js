@@ -7,11 +7,15 @@ const couponSlice = createSlice({
     data: [],
     isLoading: false,
     error: null,
-    selectedCoupon: null, // State for fetching a coupon by ID
+    currentPage: 1,
+    totalPages: 1,
+    selectedCoupon: null,
   },
   reducers: {
     setCouponData: (state, action) => {
-      state.data = action.payload;
+      state.data = action.payload.coupons;
+      state.totalPages = action.payload.totalPages;
+      state.currentPage = action.payload.currentPage;
       state.isLoading = false;
       state.error = null;
     },
@@ -39,17 +43,33 @@ export const {
 } = couponSlice.actions;
 
 // Fetch all categories
-export const fetchCouponData = () => async (dispatch) => {
-  dispatch(setCouponLoading());
-  try {
-    const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + "coupon/getAllCoupons"
-    );
-    dispatch(setCouponData(response.data.data));
-  } catch (error) {
-    dispatch(setCouponError(error.message));
-  }
-};
+export const fetchCouponData =
+  (page = 1) =>
+  async (dispatch) => {
+    dispatch(setCouponLoading());
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_BASE_URL + "coupon/getAllCoupons",
+        {
+          params: {
+            page,
+            limit: 20,
+          },
+        }
+      );
+      const { coupons, totalPages } = response.data.data;
+
+      dispatch(
+        setCouponData({
+          coupons,
+          totalPages,
+          currentPage: page,
+        })
+      );
+    } catch (error) {
+      dispatch(setCouponError(error.message));
+    }
+  };
 
 // Fetch coupon by ID
 export const fetchCouponById = (couponId) => async (dispatch) => {
@@ -127,5 +147,6 @@ export const selectCouponData = (state) => state.coupon.data;
 export const selectCouponLoading = (state) => state.coupon.isLoading;
 export const selectCouponError = (state) => state.coupon.error;
 export const selectSelectedCoupon = (state) => state.coupon.selectedCoupon;
+export const selectTotalPages = (state) => state.coupon.totalPages;
 
 export default couponSlice.reducer;

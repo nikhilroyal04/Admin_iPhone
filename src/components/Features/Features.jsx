@@ -9,7 +9,6 @@ import {
   AccordionIcon,
   VStack,
   Tag,
-  Heading,
   IconButton,
   HStack,
   Flex,
@@ -30,6 +29,7 @@ import {
   selectFeatureData,
   selectFeatureError,
   selectFeatureLoading,
+  selectTotalPages,
 } from "../../app/features/featureSlice";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
@@ -41,6 +41,7 @@ export default function Features() {
 
   // Selectors to get feature data, loading state, and error state from the Redux store
   const featureData = useSelector(selectFeatureData);
+  const totalPages = useSelector(selectTotalPages);
   const isLoading = useSelector(selectFeatureLoading);
   const error = useSelector(selectFeatureError);
 
@@ -48,10 +49,11 @@ export default function Features() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [selectedFeatureId, setSelectedFeatureId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch feature data when the component mounts
   useEffect(() => {
-    dispatch(fetchFeatureData());
+    dispatch(fetchFeatureData(currentPage));
   }, [dispatch]);
 
   // Render loading spinner while data is being fetched
@@ -77,15 +79,137 @@ export default function Features() {
 
   // Open modal for delete confirmation
   const confirmDelete = (id, event) => {
-    event.stopPropagation(); // Prevent accordion from opening
+    event.stopPropagation();
     setSelectedFeatureId(id);
     onOpen();
   };
 
   // Handle edit button click
   const handleEdit = (id, event) => {
-    event.stopPropagation(); // Prevent accordion from opening
+    event.stopPropagation();
     navigate(`editFeature/${id}`);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleFirstPage = () => handlePageChange(1);
+  const handleLastPage = () => handlePageChange(totalPages);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+  };
+  const handlePrevPage = () => {
+    if (currentPage > 1) handlePageChange(currentPage - 1);
+  };
+
+  const renderPaginationButtons = () => {
+    const pages = [];
+    if (currentPage > 2) {
+      pages.push(
+        <Button
+          key="first"
+          onClick={handleFirstPage}
+          variant="outline"
+          color="black"
+        >
+          First
+        </Button>
+      );
+    }
+    if (currentPage > 1) {
+      pages.push(
+        <Button
+          key="prev"
+          onClick={handlePrevPage}
+          variant="outline"
+          color="black"
+        >
+          Previous
+        </Button>
+      );
+    }
+
+    const pageRange = 3;
+    let startPage = Math.max(1, currentPage - pageRange);
+    let endPage = Math.min(totalPages, currentPage + pageRange);
+
+    if (startPage > 1) {
+      pages.push(
+        <Button
+          key="1"
+          onClick={() => handlePageChange(1)}
+          variant="solid"
+          color="black"
+        >
+          1
+        </Button>
+      );
+      if (startPage > 2) {
+        pages.push(<Text key="dots1">...</Text>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          colorScheme={i === currentPage ? "blue" : "gray"}
+          variant="solid"
+          color={i === currentPage ? "black" : "black"}
+          disabled={i === currentPage}
+        >
+          {i}
+        </Button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(<Text key="dots2">...</Text>);
+      }
+      pages.push(
+        <Button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          variant="solid"
+          color="black"
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+
+    if (currentPage < totalPages) {
+      pages.push(
+        <Button
+          key="next"
+          onClick={handleNextPage}
+          variant="outline"
+          color="black"
+        >
+          Next
+        </Button>
+      );
+    }
+
+    if (totalPages > 2) {
+      pages.push(
+        <Button
+          key="last"
+          onClick={handleLastPage}
+          colorScheme="black"
+          variant="outline"
+          color="white"
+        >
+          Last
+        </Button>
+      );
+    }
+
+    return pages;
   };
 
   return (
@@ -157,6 +281,10 @@ export default function Features() {
           <Text>No features found.</Text>
         )}
       </Accordion>
+
+      <HStack spacing={4} justifyContent="center" mt={6}>
+        {renderPaginationButtons()}
+      </HStack>
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>

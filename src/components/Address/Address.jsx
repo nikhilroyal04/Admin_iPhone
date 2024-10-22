@@ -213,17 +213,17 @@ export default function Address() {
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
         <Text as="h2" fontSize="2xl">
-          Address List
+          Addresses
         </Text>
         <Flex spacing={4}>
           {/* <Input placeholder="Search by username" width="65%" mr={2} /> */}
 
-          <Button colorScheme="teal" onClick={onAddOpen}>
+          <Button colorScheme="teal" onClick={onAddOpen} mt={2}>
             Add Address
           </Button>
         </Flex>
       </Flex>
-      <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+      <SimpleGrid columns={[1, 1, 2, 2, 3]} spacing={4}>
         {addressData.length || [] > 0 ? (
           addressData.map((address) => (
             <Box key={address._id} borderWidth="1px" borderRadius="lg" p={4}>

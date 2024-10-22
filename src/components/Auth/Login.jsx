@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -6,87 +6,171 @@ import {
   FormLabel,
   Input,
   Heading,
-  Text,
   Alert,
   AlertIcon,
   useToast,
-} from '@chakra-ui/react';
+  Checkbox,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  IconButton,
+  Flex,
+} from "@chakra-ui/react";
+import { HiUser, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loginUser,
+  selectIsLoading,
+  selectError,
+  selectUser,
+} from "../../app/features/authSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const loading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
   const toast = useToast();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (!username || !password) {
-      setError('Both fields are required.');
-      return;
-    }
-
-    // Simulate a login process (replace this with actual authentication logic)
-    if (username === 'user' && password === 'pass') {
+    if (!email || !password) {
       toast({
-        title: 'Login Successful',
-        description: `Welcome, ${username}!`,
-        status: 'success',
+        title: "Error",
+        description: "Both fields are required.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
-      setError(''); // Clear error on successful login
-      // Here you would redirect the user or do something else after successful login
-    } else {
-      setError('Invalid username or password.');
+      return;
+    }
+
+    try {
+      await dispatch(loginUser({ email, password }));
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Something went wrong.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
+  // Effect to navigate if user is found
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    } else if (error) {
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }, [user, error, navigate, toast]);
+
   return (
-    <Box
-      maxWidth="400px"
-      mx="auto"
-      mt="100px"
-      p={6}
-      borderWidth={1}
-      borderRadius="lg"
-      boxShadow="lg"
-    >
-      <Heading as="h2" size="lg" textAlign="center" mb={6}>
-        Login
-      </Heading>
-      {error && (
-        <Alert status="error" mb={4}>
-          <AlertIcon />
-          {error}
-        </Alert>
-      )}
-      <form onSubmit={handleLogin}>
-        <FormControl isRequired mb={4}>
-          <FormLabel htmlFor="username">Username</FormLabel>
-          <Input
-            id="username"
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </FormControl>
-        <FormControl isRequired mb={4}>
-          <FormLabel htmlFor="password">Password</FormLabel>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </FormControl>
-        <Button colorScheme="blue" width="full" type="submit">
+    <Flex minHeight="100vh" align="center" justify="center" bg="gray.100">
+      <Box
+        maxWidth="400px"
+        width="95%"
+        p={6}
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="lg"
+        bg="white"
+      >
+        <Heading as="h2" size="lg" textAlign="center" mb={6}>
           Login
-        </Button>
-      </form>
-    </Box>
+        </Heading>
+
+        <form onSubmit={handleLogin}>
+          <FormControl isRequired mb={4}>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <InputGroup>
+              <InputLeftElement
+                pointerEvents="none"
+                children={<HiUser color="gray.300" />}
+              />
+              <Input
+                id="email"
+                type="text"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                borderRadius="md"
+                _focus={{
+                  borderColor: "blue.400",
+                  boxShadow: "0 0 0 1px blue.400",
+                }}
+              />
+            </InputGroup>
+          </FormControl>
+          <FormControl isRequired mb={4}>
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <InputGroup>
+              <InputLeftElement
+                pointerEvents="none"
+                children={<HiLockClosed color="gray.300" />}
+              />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                borderRadius="md"
+                _focus={{
+                  borderColor: "blue.400",
+                  boxShadow: "0 0 0 1px blue.400",
+                }}
+              />
+              <InputRightElement>
+                <IconButton
+                  variant="link"
+                  onClick={() => setShowPassword(!showPassword)}
+                  icon={
+                    showPassword ? (
+                      <HiEyeOff color="gray.500" />
+                    ) : (
+                      <HiEye color="gray.500" />
+                    )
+                  }
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  size="md"
+                />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+          <Checkbox mb={4}>Remember Me</Checkbox>
+          {error && (
+            <Alert status="error" mb={4}>
+              <AlertIcon />
+              Please check your credentials.
+            </Alert>
+          )}
+          <Button
+            colorScheme="blue"
+            width="full"
+            type="submit"
+            isLoading={loading}
+            loadingText="Logging in"
+          >
+            Login
+          </Button>
+        </form>
+      </Box>
+    </Flex>
   );
 }

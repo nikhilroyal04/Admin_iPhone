@@ -20,7 +20,8 @@ import {
   useDisclosure,
   Flex,
   Select,
-  HStack,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -93,28 +94,47 @@ export default function CategoryList() {
   return (
     <Box p={4}>
       {/* Header with Title and Add Category Button */}
-      <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
-        <Heading as="h2" size="lg">
-          Categories
-        </Heading>
-        <HStack spacing={4}>
-          {/* Status Filter */}
-          <Select
-            placeholder="Filter by status"
-            onChange={(e) => setFilterStatus(e.target.value)}
-            width="65%"
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </Select>
-          <Button colorScheme="teal" onClick={onAddOpen}>
-            Add Category
-          </Button>
-        </HStack>
+
+      <Flex justify="space-between" align="center" mb={4}>
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 2fr"}} // Two columns for md and above
+          gap={4}
+          width="100%"
+        >
+          {/* Category List Heading */}
+          <GridItem>
+            <Text fontSize="2xl">Category List</Text>
+          </GridItem>
+
+          {/* Flex container for Filter and Add Category Button */}
+          <GridItem>
+            <Flex
+              direction={{ base: "column", sm: "row" }} 
+              justifyContent="flex-end" 
+              gap={2}
+            >
+              <Select
+                placeholder="Filter by status"
+                onChange={(e) => setFilterStatus(e.target.value)}
+                width={{ base: "100%", md: "auto" }} 
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </Select>
+              <Button
+                onClick={onAddOpen}
+                colorScheme="green"
+                width={{ base: "100%", md: "auto" }}
+              >
+                Add Category
+              </Button>
+            </Flex>
+          </GridItem>
+        </Grid>
       </Flex>
 
-      <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-        {filteredCategories.map((category) => (
+      <SimpleGrid columns={[1, 2, 2, 2, 3]} spacing={4}>
+      {filteredCategories.map((category) => (
           <Box
             key={category.id}
             borderWidth="1px"

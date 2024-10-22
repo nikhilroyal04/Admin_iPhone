@@ -7,11 +7,15 @@ const userSlice = createSlice({
     data: [],
     isLoading: false,
     error: null,
-    selectedUser: null, // State for fetching a user by ID
+    currentPage: 1,
+    totalPages: 1,
+    selectedUser: null,
   },
   reducers: {
     setUserData: (state, action) => {
       state.data = action.payload.users;
+      state.totalPages = action.payload.totalPages;
+      state.currentPage = action.payload.currentPage;
       state.isLoading = false;
       state.error = null;
     },
@@ -35,17 +39,27 @@ export const { setUserData, setUserLoading, setUserError, setSelectedUser } =
   userSlice.actions;
 
 // Fetch all categories
-export const fetchUserData = () => async (dispatch) => {
-  dispatch(setUserLoading());
-  try {
-    const response = await axios.get(
-      import.meta.env.VITE_BASE_URL + "user/getAllUsers"
-    );
-    dispatch(setUserData(response.data.data));
-  } catch (error) {
-    dispatch(setUserError(error.message));
-  }
-};
+export const fetchUserData =
+  (page = 1) =>
+  async (dispatch) => {
+    dispatch(setUserLoading());
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_BASE_URL + "user/getAllUsers",
+        {
+          params: {
+            page,
+            limit: 20,
+          },
+        }
+      );
+      const { users, totalPages } = response.data.data;
+
+      dispatch(setUserData({ users, totalPages, currentPage: page }));
+    } catch (error) {
+      dispatch(setUserError(error.message));
+    }
+  };
 
 // Fetch user by ID
 export const fetchUserById = (userId) => async (dispatch) => {
@@ -93,9 +107,7 @@ export const editUser = (id, updatedUser) => async (dispatch) => {
 // Delete a user (no separate reducer)
 export const deleteUser = (id) => async (dispatch) => {
   try {
-    await axios.delete(
-      import.meta.env.VITE_BASE_URL + `user/deleteUser/${id}`
-    );
+    await axios.delete(import.meta.env.VITE_BASE_URL + `user/deleteUser/${id}`);
     // Re-fetch categories after deletion
     dispatch(fetchUserData());
   } catch (error) {
@@ -106,9 +118,7 @@ export const deleteUser = (id) => async (dispatch) => {
 // Remove a user (no separate reducer)
 export const removeUser = (id) => async (dispatch) => {
   try {
-    await axios.put(
-      import.meta.env.VITE_BASE_URL + `user/removeUser/${id}`
-    );
+    await axios.put(import.meta.env.VITE_BASE_URL + `user/removeUser/${id}`);
     // Re-fetch categories after deletion
     dispatch(fetchUserData());
   } catch (error) {
@@ -121,5 +131,6 @@ export const selectUserData = (state) => state.user.data;
 export const selectUserLoading = (state) => state.user.isLoading;
 export const selectUserError = (state) => state.user.error;
 export const selectSelectedUser = (state) => state.user.selectedUser;
+export const selectTotalPages = (state) => state.user.totalPages;
 
 export default userSlice.reducer;

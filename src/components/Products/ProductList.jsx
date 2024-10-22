@@ -225,24 +225,35 @@ export default function ProductList() {
   return (
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
-        <Text as="h2" fontSize="2xl">
+        <Text
+          as="h2"
+          fontSize="2xl"
+          flex={{ base: "1 1 100%", md: "0 1 auto" }}
+        >
           Products List
         </Text>
-        <Flex>
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          justify={{ base: "flex-start", md: "flex-end" }}
+          width={{ base: "100%", md: "auto" }}
+          mt={{ base: 3, md: 0 }}
+        >
           <Input
             placeholder="Search by model name..."
             value={searchTerm}
             onChange={handleSearchChange}
-            width="55%"
-            mr={2}
+            mb={{ base: 2, sm: 0 }}
+            mr={{ sm: 2 }}
+            width={{ base: "100%", sm: "auto" }}
           />
           <Select
             name="categoryName"
             value={selectedCategoryName}
             onChange={handleCategoryChange}
             placeholder="Filter by category"
-            width="45%"
-            mr={2}
+            mb={{ base: 2, sm: 0 }}
+            mr={{ sm: 2 }}
+            width={{ base: "100%", sm: "auto" }}
           >
             {categoryData.map((category) => (
               <option key={category._id} value={category.name}>
@@ -253,7 +264,7 @@ export default function ProductList() {
           <Button
             colorScheme="teal"
             onClick={() => navigate("addproduct")}
-            width="25%"
+            width={{ base: "100%", sm: "auto" }}
           >
             Add Product
           </Button>
@@ -266,7 +277,7 @@ export default function ProductList() {
         <Error502 />
       ) : (
         <>
-          <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+          <SimpleGrid columns={[1, 2, 2, 2, 3]} spacing={4}>
             {products.map((product) => (
               <Box
                 key={product._id}
@@ -276,14 +287,18 @@ export default function ProductList() {
                 boxShadow="lg"
                 p={4}
                 textAlign="center"
-                height="100%"
               >
-                <Image
-                  src={product.media[0]}
-                  alt={product.model}
-                  borderRadius="md"
-                  mb={5}
-                />
+                <Box height="400px" overflow="hidden">
+                  <Image
+                    src={product.media[0]}
+                    alt={product.model}
+                    borderRadius="md"
+                    objectFit="cover"
+                    height="100%"
+                    width="100%"
+                    mb={5}
+                  />
+                </Box>
                 <Text fontWeight="bold" fontSize="lg">
                   {product.model}
                 </Text>
