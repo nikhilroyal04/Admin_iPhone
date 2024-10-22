@@ -45,10 +45,16 @@ const Header = ({ onOpen, isMenuOpen }) => {
       case path === "/roles":
         return { heading: "Dashboard", subHeadings: ["Roles"] };
 
+      case path.startsWith("/roles/editrole/"):
+        return {
+          heading: "Dashboard",
+          subHeadings: ["Roles > Roles"],
+        };
+
       case path.startsWith("/features/editFeature/"):
         return {
           heading: "Dashboard",
-          subHeadings: ["Features > Features"], // Don't render subheading for edit feature with ID
+          subHeadings: ["Features > Features"],
         };
 
       case path === "/features/addFeature":

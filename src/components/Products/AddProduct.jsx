@@ -56,18 +56,18 @@ const AddProduct = () => {
     color: [],
     storage: "",
     material: "",
-    price: 0,
-    originalPrice: 0,
-    quantity: 0,
-    batteryHealth: 0,
-    releaseYear: 0,
+    price: "",
+    originalPrice: "",
+    quantity: "",
+    batteryHealth: "",
+    releaseYear: "",
     features: [],
     compatibility: [],
     condition: "",
     warranty: "",
     addOn: [],
     purchaseDate: "",
-    age: 0,
+    age: "",
     repaired: [],
     categoryName: "",
     status: "available",
@@ -121,22 +121,22 @@ const AddProduct = () => {
     setFormData({
       model: "",
       type: "",
-      color: "",
+      color: [],
       storage: "",
       material: "",
-      price: 0,
-      originalPrice: 0,
-      quantity: 0,
-      batteryHealth: 0,
-      releaseYear: 0,
-      features: "",
-      compatibility: "",
+      price: "",
+      originalPrice: "",
+      quantity: "",
+      batteryHealth: "",
+      releaseYear: "",
+      features: [],
+      compatibility: [],
       condition: "",
       warranty: "",
-      addOn: "",
+      addOn: [],
       purchaseDate: "",
-      age: 0,
-      repaired: "",
+      age: "",
+      repaired: [],
       categoryName: "",
       status: "",
     }); // Reset form data
@@ -164,6 +164,8 @@ const AddProduct = () => {
   if (error) {
     return <Error502 />;
   }
+
+  console.log("features", featureData);
 
   return (
     <Box p={4} bg="white" borderRadius="md" boxShadow="md">
@@ -381,7 +383,7 @@ const AddProduct = () => {
                 placeholder="Select feature"
               >
                 {featureData.map((feature) => (
-                  <option key={feature._id} value={feature.description}>
+                  <option key={feature._id} value={feature._id}>
                     {feature.name}
                   </option>
                 ))}

@@ -66,7 +66,7 @@ export const fetchRoleById = (roleId) => async (dispatch) => {
 
 // Add a new role (no separate reducer)
 export const addRole = (newRole) => async (dispatch) => {
-  dispatch(setRoleLoading());
+  // dispatch(setRoleLoading());
   try {
     await axios.post(
       import.meta.env.VITE_BASE_URL + "role/addRole",
@@ -81,7 +81,7 @@ export const addRole = (newRole) => async (dispatch) => {
 
 // Edit a role (no separate reducer)
 export const editRole = (roleId, updatedData) => async (dispatch) => {
-  dispatch(setRoleLoading());
+  // dispatch(setRoleLoading());
   try {
     await axios.put(
       import.meta.env.VITE_BASE_URL + `role/updateRole/${roleId}`,
@@ -96,7 +96,7 @@ export const editRole = (roleId, updatedData) => async (dispatch) => {
 
 // Delete a role (no separate reducer)
 export const deleteRole = (roleId) => async (dispatch) => {
-  dispatch(setRoleLoading());
+  // dispatch(setRoleLoading());
   try {
     await axios.delete(
       import.meta.env.VITE_BASE_URL + `role/deleteRole/${roleId}`
@@ -110,7 +110,7 @@ export const deleteRole = (roleId) => async (dispatch) => {
 
 // Remove a role (no separate reducer)
 export const removeRole = (roleId) => async (dispatch) => {
-  dispatch(setRoleLoading());
+  // dispatch(setRoleLoading());
   try {
     await axios.put(
       import.meta.env.VITE_BASE_URL + `role/removeRole/${roleId}`

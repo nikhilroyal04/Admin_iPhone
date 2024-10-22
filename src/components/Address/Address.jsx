@@ -263,11 +263,10 @@ export default function Address() {
         ) : (
           <Text>No addresses found.</Text>
         )}
-
-        <HStack spacing={4} justifyContent="center" mt={6}>
-          {renderPaginationButtons()}
-        </HStack>
       </SimpleGrid>
+      <HStack spacing={4} justifyContent="center" mt={6}>
+        {renderPaginationButtons()}
+      </HStack>
 
       {/* Delete Confirmation Modal */}
       <AlertDialog isOpen={isOpen} leastDestructiveRef={null} onClose={onClose}>

@@ -96,27 +96,13 @@ const EditProduct = () => {
     const updatedFormData = new FormData();
 
     // Append form data to FormData object
-    updatedFormData.append("model", formData.model);
-    updatedFormData.append("type", formData.type);
-    updatedFormData.append("color", formData.color); // Store as JSON
-    updatedFormData.append("storage", formData.storage);
-    updatedFormData.append("material", formData.material);
-    updatedFormData.append("price", parseFloat(formData.price));
-    updatedFormData.append("originalPrice", parseFloat(formData.originalPrice));
-    updatedFormData.append("priceOff", parseFloat(formData.priceOff));
-    updatedFormData.append("quantity", parseInt(formData.quantity, 10));
-    updatedFormData.append("batteryHealth", parseFloat(formData.batteryHealth));
-    updatedFormData.append("releaseYear", parseInt(formData.releaseYear, 10));
-    updatedFormData.append("features", formData.features); // Store as JSON
-    updatedFormData.append("compatibility", formData.compatibility); // Store as JSON
-    updatedFormData.append("condition", formData.condition);
-    updatedFormData.append("warranty", formData.warranty);
-    updatedFormData.append("addOn", formData.addOn); // Store as JSON
-    updatedFormData.append("purchaseDate", formData.purchaseDate);
-    updatedFormData.append("age", parseInt(formData.age, 10));
-    updatedFormData.append("repaired", formData.repaired); // Store as JSON
-    updatedFormData.append("categoryName", formData.categoryName);
-    updatedFormData.append("status", formData.status);
+    for (const key in formData) {
+      if (Array.isArray(formData[key])) {
+        updatedFormData.append(key, formData[key]); // Handle arrays
+      } else {
+        updatedFormData.append(key, formData[key]);
+      }
+    }
 
     // Append media files to FormData
     mediaFiles.forEach((media) => {
@@ -194,7 +180,6 @@ const EditProduct = () => {
       name === "addOn" ||
       name === "repaired"
     ) {
-      // Convert comma-separated strings to arrays
       setFormData((prev) => ({
         ...prev,
         [name]: value.split(",").map((item) => item.trim()),
@@ -292,11 +277,21 @@ const EditProduct = () => {
         <SimpleGrid columns={[1, 2]} spacing={4}>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Model</FormLabel>
-            <Input name="model" defaultValue={product.model} required />
+            <Input
+              name="model"
+              onChange={handleChange}
+              value={formData.model}
+              required
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Type</FormLabel>
-            <Select name="type" defaultValue={product.type} required>
+            <Select
+              name="type"
+              onChange={handleChange}
+              value={formData.type}
+              required
+            >
               <option value="charger">Charger</option>
               <option value="case">Case</option>
               <option value="earbuds">Earbuds</option>
@@ -310,24 +305,34 @@ const EditProduct = () => {
             <FormLabel>Color</FormLabel>
             <Input
               name="color"
-              defaultValue={product.color.join(", ")} // Accepts multiple colors as a comma-separated string
+              onChange={handleChange}
+              value={formData.color.join(", ")} // Accepts multiple colors as a comma-separated string
               placeholder="Enter colors separated by commas"
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Storage</FormLabel>
-            <Input name="storage" defaultValue={product.storage} />
+            <Input
+              name="storage"
+              value={formData.storage}
+              onChange={handleChange}
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Material</FormLabel>
-            <Input name="material" defaultValue={product.material} />
+            <Input
+              name="material"
+              value={formData.material}
+              onChange={handleChange}
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Price</FormLabel>
             <Input
               type="number"
               name="price"
-              defaultValue={product.price}
+              value={formData.price}
+              onChange={handleChange}
               required
             />
           </FormControl>
@@ -336,7 +341,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="originalPrice"
-              defaultValue={product.originalPrice}
+              onChange={handleChange}
+              value={formData.originalPrice}
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
@@ -344,7 +350,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="priceOff"
-              defaultValue={product.priceOff}
+              onChange={handleChange}
+              value={formData.priceOff}
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
@@ -352,7 +359,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="quantity"
-              defaultValue={product.quantity}
+              onChange={handleChange}
+              value={formData.quantity}
               min="0"
               required
             />
@@ -362,7 +370,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="batteryHealth"
-              defaultValue={product.batteryHealth}
+              onChange={handleChange}
+              value={formData.batteryHealth}
               min="0"
               max="100"
             />
@@ -372,7 +381,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="releaseYear"
-              defaultValue={product.releaseYear}
+              onChange={handleChange}
+              value={formData.releaseYear}
               min="1900"
               max={new Date().getFullYear()}
             />
@@ -381,23 +391,33 @@ const EditProduct = () => {
             <FormLabel>Compatibility</FormLabel>
             <Input
               name="compatibility"
-              defaultValue={product.compatibility.join(", ")} // Accepts multiple compatibility options as a comma-separated string
+              onChange={handleChange}
+              value={formData.compatibility.join(", ")} // Accepts multiple compatibility options as a comma-separated string
               placeholder="Enter compatibility options separated by commas"
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Condition</FormLabel>
-            <Input name="condition" defaultValue={product.condition} />
+            <Input
+              name="condition"
+              onChange={handleChange}
+              value={formData.condition}
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Warranty</FormLabel>
-            <Input name="warranty" defaultValue={product.warranty} />
+            <Input
+              name="warranty"
+              onChange={handleChange}
+              value={formData.warranty}
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Add On</FormLabel>
             <Input
               name="addOn"
-              defaultValue={product.addOn.join(", ")} // Accepts multiple add-ons as a comma-separated string
+              onChange={handleChange}
+              value={formData.addOn.join(", ")} // Accepts multiple add-ons as a comma-separated string
               placeholder="Enter add-ons separated by commas"
             />
           </FormControl>
@@ -406,7 +426,8 @@ const EditProduct = () => {
             <Input
               type="date"
               name="purchaseDate"
-              defaultValue={product.purchaseDate}
+              onChange={handleChange}
+              value={formData.purchaseDate}
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
@@ -414,7 +435,8 @@ const EditProduct = () => {
             <Input
               type="number"
               name="age"
-              defaultValue={product.age}
+              onChange={handleChange}
+              value={formData.age}
               min="0"
             />
           </FormControl>
@@ -422,17 +444,26 @@ const EditProduct = () => {
             <FormLabel>Repaired</FormLabel>
             <Input
               name="repaired"
-              defaultValue={product.repaired.join(", ")} // Accepts multiple repairs as a comma-separated string
+              onChange={handleChange}
+              value={formData.repaired.join(", ")} // Accepts multiple repairs as a comma-separated string
               placeholder="Enter repaired items separated by commas"
             />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Category Name</FormLabel>
-            <Input name="categoryName" defaultValue={product.categoryName} />
+            <Input
+              name="categoryName"
+              onChange={handleChange}
+              value={formData.categoryName}
+            />
           </FormControl>
           <FormControl mb={4} isDisabled={!isEditing}>
             <FormLabel>Status</FormLabel>
-            <Input name="status" defaultValue={product.status} />
+            <Input
+              name="status"
+              onChange={handleChange}
+              value={formData.status}
+            />
           </FormControl>
         </SimpleGrid>
 

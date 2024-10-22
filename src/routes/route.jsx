@@ -18,6 +18,7 @@ import Features from "../components/Features/Features";
 import AddFeature from "../components/Features/AddFeature";
 import EditFeature from "../components/Features/EditFeature";
 import CategoryList from "../components/Category/CategoryList";
+import EditRole from "../components/Roles/EditRole";
 
 import Not_Found from "../components/Not_Found/Not_Found";
 import Address from "../components/Address/Address";
@@ -35,6 +36,7 @@ const Routing = () => {
           <Route index element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/roles" element={<Roles />} />
+          <Route path="/roles/editrole/:id" element={<EditRole />} />
           <Route path="/users" element={<UserList />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/editproduct/:id" element={<EditProduct />} />

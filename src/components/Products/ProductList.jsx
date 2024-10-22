@@ -56,6 +56,7 @@ export default function ProductList() {
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(null);
 
   useEffect(() => {
     // Fetch category data when the component mounts
@@ -74,9 +75,17 @@ export default function ProductList() {
     onOpen();
   };
 
-  const handleDeleteConfirm = () => {
-    dispatch(deleteProduct(selectedProductId));
-    onClose();
+  const handleDeleteConfirm = async () => {
+    setLoading(true);
+    try {
+      await dispatch(deleteProduct(selectedProductId));
+      setCurrentPage(1); // Reset current page if necessary
+      onClose();
+    } catch (error) {
+      console.error("Failed to delete the product: ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditClick = (id) => {
@@ -333,7 +342,12 @@ export default function ProductList() {
                 <Button colorScheme="blue" mr={3} onClick={onClose}>
                   Cancel
                 </Button>
-                <Button colorScheme="red" onClick={handleDeleteConfirm}>
+                <Button
+                  colorScheme="red"
+                  onClick={handleDeleteConfirm}
+                  isLoading={loading}
+                  loadingText="Deleting..."
+                >
                   Delete
                 </Button>
               </ModalFooter>
