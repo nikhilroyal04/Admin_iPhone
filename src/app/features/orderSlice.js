@@ -44,7 +44,7 @@ export const {
 
 // Fetch all categories
 export const fetchOrderData =
-  (page = 1) =>
+  (page = 1, filterStatus = "", searchTerm = "") =>
   async (dispatch) => {
     dispatch(setOrderLoading());
     try {
@@ -54,6 +54,8 @@ export const fetchOrderData =
           params: {
             page,
             limit: 20,
+            orderStatus: filterStatus,
+            userId: searchTerm,
           },
         }
       );

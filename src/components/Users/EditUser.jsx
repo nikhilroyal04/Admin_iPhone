@@ -12,13 +12,14 @@ import {
   Input,
   Select,
   Button,
-  Spinner,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { editUser } from "../../app/features/userSlice";
+import { fetchRoleData, selectRoleData } from "../../app/features/roleSlice";
 
 export default function EditUser({ isOpen, onClose, user }) {
   const dispatch = useDispatch();
+  const roleData = useSelector(selectRoleData);
 
   // Initialize formData state
   const [formData, setFormData] = useState({
@@ -33,6 +34,11 @@ export default function EditUser({ isOpen, onClose, user }) {
 
   // Loading state
   const [loading, setLoading] = useState(false);
+
+  // Fetch role data on initial render
+  useEffect(() => {
+    dispatch(fetchRoleData());
+  }, [dispatch]);
 
   // Update formData when the user prop changes
   useEffect(() => {
@@ -167,9 +173,16 @@ export default function EditUser({ isOpen, onClose, user }) {
           {/* Role Field */}
           <FormControl isRequired>
             <FormLabel>Role</FormLabel>
-            <Select name="role" value={formData.role} onChange={handleChange}>
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
+            <Select
+              name="roleName"
+              value={formData.roleName}
+              onChange={handleChange}
+            >
+              {roleData.map((role) => (
+                <option key={role._id} value={role.roleName}>
+                  {role.roleName}
+                </option>
+              ))}
             </Select>
           </FormControl>
         </ModalBody>

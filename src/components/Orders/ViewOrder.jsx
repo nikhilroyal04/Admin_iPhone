@@ -19,8 +19,6 @@ import TimeConversion from "../../utils/timeConversion";
 const ViewOrder = ({ isOpen, onClose, order }) => {
   if (!order) return null;
 
-  console.log(order);
-
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -37,6 +35,10 @@ const ViewOrder = ({ isOpen, onClose, order }) => {
               <GridItem>
                 <Text fontWeight="bold">Order ID:</Text>
                 <Text>{order._id}</Text> {/* Order ID */}
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold">User ID:</Text>
+                <Text>{order.userId}</Text>
               </GridItem>
               <GridItem>
                 <Text fontWeight="bold">Product ID:</Text>
@@ -64,6 +66,7 @@ const ViewOrder = ({ isOpen, onClose, order }) => {
                 <Text fontWeight="bold">Discount Applied:</Text>
                 <Text>{order.couponApplied}</Text>
               </GridItem>
+
               <GridItem>
                 <Text fontWeight="bold">Order Date:</Text>
                 <Text>
@@ -97,6 +100,7 @@ const ViewOrder = ({ isOpen, onClose, order }) => {
                   {TimeConversion.unixTimeToRealTime(order.updatedOn)}
                 </Text>
               </GridItem>
+              <GridItem></GridItem>
               <GridItem>
                 <Text fontWeight="bold">Billing Address:</Text>
                 <Box borderWidth={1} borderRadius="md" p={2} bg="gray.50">

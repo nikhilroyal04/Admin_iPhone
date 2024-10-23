@@ -1,14 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const initialState = {
+  user: JSON.parse(localStorage.getItem("user")) || null, // Retrieve user from localStorage on initialization
+  isLoading: false,
+  error: null,
+  isLoggedIn: !!localStorage.getItem("user"), // Check if user exists in localStorage
+};
+
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: null,
-    isLoading: false,
-    error: null,
-    isLoggedIn: false,
-  },
+  initialState,
   reducers: {
     setLoginLoading: (state) => {
       state.isLoading = true;
@@ -19,12 +21,16 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.isLoggedIn = true;
       state.error = null;
+      // Store user in local storage
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
     setLogout: (state) => {
       state.user = null;
       state.isLoading = false;
       state.isLoggedIn = false;
       state.error = null;
+      // Remove user from local storage
+      localStorage.removeItem("user");
     },
     setLoginError: (state, action) => {
       state.isLoading = false;
@@ -32,6 +38,8 @@ const authSlice = createSlice({
     },
     setUserProfile: (state, action) => {
       state.user = action.payload;
+      // Update user in local storage
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
   },
 });
@@ -45,7 +53,7 @@ export const {
 } = authSlice.actions;
 
 // Helper function to fetch the user profile
-const fetchUserProfile = (token) => async (dispatch) => {
+export const fetchUserProfile = (token) => async (dispatch) => {
   dispatch(setLoginLoading());
   try {
     const response = await axios.get(
@@ -58,9 +66,15 @@ const fetchUserProfile = (token) => async (dispatch) => {
     );
     const userData = response.data.data;
 
-    dispatch(setUserProfile(userData));
+    // Check if the user status is active before setting the user profile
+    if (userData.status === "Inactive") {
+      dispatch(setLoginError("User account is inactive."));
+      dispatch(setLogout()); // Logout if the user is inactive
+    } else {
+      dispatch(setUserProfile(userData));
+    }
   } catch (error) {
-    dispatch(setLoginError(error.response?.data?.message || error.message));
+    dispatch(setLoginError("Invalid credentials. Please try again."));
   }
 };
 
@@ -79,7 +93,7 @@ export const loginUser = (credentials) => async (dispatch) => {
     // Fetch user profile after successful login
     dispatch(fetchUserProfile(token));
   } catch (error) {
-    dispatch(setLoginError(error.message));
+    dispatch(setLoginError("Invalid credentials. Please try again."));
   }
 };
 

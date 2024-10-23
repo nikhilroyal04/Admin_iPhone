@@ -80,12 +80,12 @@ export const addRole = (newRole) => async (dispatch) => {
 };
 
 // Edit a role (no separate reducer)
-export const editRole = (roleId, updatedData) => async (dispatch) => {
+export const editRole = (id, updatedRoleData) => async (dispatch) => {
   // dispatch(setRoleLoading());
   try {
     await axios.put(
-      import.meta.env.VITE_BASE_URL + `role/updateRole/${roleId}`,
-      updatedData
+      import.meta.env.VITE_BASE_URL + `role/updateRole/${id}`,
+      updatedRoleData
     );
     // Re-fetch categories after updating
     dispatch(fetchRoleData());

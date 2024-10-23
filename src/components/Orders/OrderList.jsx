@@ -55,17 +55,12 @@ export default function OrderList() {
 
   // Fetch order data when the component mounts
   useEffect(() => {
-    dispatch(fetchOrderData(currentPage));
-  }, [dispatch]);
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  // Render error message if there is an error
-  if (error) {
-    return <Error502 />;
-  }
+    if (searchTerm.length === 24) {
+      dispatch(fetchOrderData(currentPage, filterStatus, searchTerm));
+    } else if (searchTerm.length === 0) {
+      dispatch(fetchOrderData(currentPage, filterStatus, ""));
+    }
+  }, [dispatch, currentPage, filterStatus, searchTerm]);
 
   const handleViewClick = (order) => {
     setSelectedOrder(order);
@@ -78,7 +73,8 @@ export default function OrderList() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
   };
 
   const handleFilterChange = (e) => {
@@ -223,7 +219,7 @@ export default function OrderList() {
           >
             {" "}
             <Input
-              placeholder="Search by prod/ord id... "
+              placeholder="Search by order id... "
               value={searchTerm}
               onChange={handleSearchChange}
               mr={2}
@@ -243,79 +239,93 @@ export default function OrderList() {
             </Select>
           </Flex>
         </Flex>
-        <Box
-          overflow="auto"
-          css={{
-            "&::-webkit-scrollbar": {
-              width: "8px",
-              height: "8px",
-              backgroundColor: "transparent",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#cbd5e0",
-              borderRadius: "10px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#a0aec0",
-            },
-          }}
-        >
-          <Table variant="striped" colorScheme="gray" overflow="auto">
-            <Thead>
-              <Tr>
-                <Th>Order ID</Th>
-                <Th>Product Name</Th>
-                <Th>Order Date</Th>
-                <Th>Product Id</Th>
-                <Th>Status</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody overflow="auto">
-              {orderData.length > 0 ? (
-                orderData.map((order) => (
-                  <Tr key={order._id}>
-                    <Td
-                      onClick={() => handleViewClick(order)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {order._id}
-                    </Td>
-                    <Td>{order.productName}</Td>
-                    <Td>
-                      {TimeConversion.unixTimeToRealTime(order.createdOn)}
-                    </Td>
-                    <Td>{order.productId}</Td>
-                    <Td>
-                      <Badge
-                        colorScheme={
-                          order.orderStatus === "Pending" ? "orange" : "green"
-                        }
-                      >
-                        {order.orderStatus}
-                      </Badge>
-                    </Td>
-                    <Td>
-                      <Button
-                        colorScheme="blue"
-                        onClick={() => handleEditClick(order)}
-                        size="sm"
-                      >
-                        Edit
-                      </Button>
-                    </Td>
+
+        {/* Render loader when loading */}
+        {isLoading && <Loader />}
+
+        {/* Render error message if there is an error */}
+        {error && <Error502 />}
+
+        {/* Render the table only if not loading or error */}
+        {!isLoading && !error && (
+          <>
+            <Box
+              overflow="auto"
+              css={{
+                "&::-webkit-scrollbar": {
+                  width: "8px",
+                  height: "8px",
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#cbd5e0",
+                  borderRadius: "10px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  backgroundColor: "#a0aec0",
+                },
+              }}
+            >
+              <Table variant="striped" colorScheme="gray" overflow="auto">
+                <Thead>
+                  <Tr>
+                    <Th>Order ID</Th>
+                    <Th>Product Name</Th>
+                    <Th>Order Date</Th>
+                    <Th>Product Id</Th>
+                    <Th>Status</Th>
+                    <Th>Actions</Th>
                   </Tr>
-                ))
-              ) : (
-                <Tr>
-                  <Td colSpan={6}>
-                    <Text>No orders found.</Text>
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </Box>
+                </Thead>
+                <Tbody overflow="auto">
+                  {orderData.length > 0 ? (
+                    orderData.map((order) => (
+                      <Tr key={order._id}>
+                        <Td
+                          onClick={() => handleViewClick(order)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {order._id}
+                        </Td>
+                        <Td>{order.productName}</Td>
+                        <Td>
+                          {TimeConversion.unixTimeToRealTime(order.createdOn)}
+                        </Td>
+                        <Td>{order.productId}</Td>
+                        <Td>
+                          <Badge
+                            colorScheme={
+                              order.orderStatus === "Pending"
+                                ? "orange"
+                                : "green"
+                            }
+                          >
+                            {order.orderStatus}
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <Button
+                            colorScheme="blue"
+                            onClick={() => handleEditClick(order)}
+                            size="sm"
+                          >
+                            Edit
+                          </Button>
+                        </Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td colSpan={6}>
+                        <Text>No orders found.</Text>
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </Box>
+          </>
+        )}
 
         <HStack spacing={4} justifyContent="center" mt={6}>
           {renderPaginationButtons()}

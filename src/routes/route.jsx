@@ -7,7 +7,7 @@ import Login from "../components/Auth/Login";
 import Logout from "../components/Auth/Logout";
 import Not_Found from "../components/Not_Found/Not_Found";
 import Loader from "../components/Not_Found/Loader";
-// import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Lazy load your components
 const Dashboard = lazy(() => import("../components/Dashboard/Dashboard"));
@@ -34,8 +34,15 @@ const Routing = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
 
-          {/* Main Layout Routes */}
-          <Route path="/" element={<FullLayout />}>
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <FullLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/roles" element={<Roles />} />
@@ -52,6 +59,7 @@ const Routing = () => {
             <Route path="/features/addFeature" element={<AddFeature />} />
             <Route path="/features/editFeature/:id" element={<EditFeature />} />
           </Route>
+
           <Route path="*" element={<Not_Found />} />
         </Routes>
       </Suspense>

@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Button, Heading, Text, Link, Flex } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../app/features/authSlice";
 
 export default function LogoutMessage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    localStorage.removeItem("userToken");
+  useEffect(() => {
+    // Automatically dispatch logoutUser when the component mounts
+    dispatch(logoutUser());
 
+    // Redirect after a timeout
     const timeout = setTimeout(() => {
       navigate("/login");
     }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [navigate]);
+  }, [dispatch, navigate]);
 
   return (
     <Flex

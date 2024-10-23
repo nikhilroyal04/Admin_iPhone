@@ -70,15 +70,9 @@ export default function Login() {
     if (user) {
       navigate("/dashboard");
     } else if (error) {
-      toast({
-        title: "Login Failed",
-        description: "Please check your credentials.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      // error logic
     }
-  }, [user, error, navigate, toast]);
+  }, [user, error, navigate]);
 
   return (
     <Flex minHeight="100vh" align="center" justify="center" bg="gray.100">
@@ -157,7 +151,7 @@ export default function Login() {
           {error && (
             <Alert status="error" mb={4}>
               <AlertIcon />
-              Please check your credentials.
+              {error}
             </Alert>
           )}
           <Button
