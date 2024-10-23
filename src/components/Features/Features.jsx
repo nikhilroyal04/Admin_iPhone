@@ -20,6 +20,7 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
@@ -34,6 +35,7 @@ import {
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
 import { useNavigate } from "react-router-dom";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function Features() {
   const dispatch = useDispatch();
@@ -44,6 +46,7 @@ export default function Features() {
   const totalPages = useSelector(selectTotalPages);
   const isLoading = useSelector(selectFeatureLoading);
   const error = useSelector(selectFeatureError);
+  const Toast = useToast();
 
   // Modal state for delete confirmation
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -212,13 +215,37 @@ export default function Features() {
     return pages;
   };
 
+  const featureManageMentPermissions = getModulePermissions("Features");
+  if (!featureManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = featureManageMentPermissions.create;
+  const canDeleteData = featureManageMentPermissions.delete;
+  const canEditData = featureManageMentPermissions.update;
+
   return (
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
         <Text as="h2" fontSize="2xl">
           Feature List
         </Text>
-        <Button colorScheme="teal" onClick={() => navigate("addFeature")}>
+        <Button
+          colorScheme="teal"
+          onClick={() => {
+            if (canAddData) {
+              // Check if the user has permission to add features
+              navigate("addFeature");
+            } else {
+              Toast({
+                title: "You don't have permission to add features",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+                position: "top-right",
+              });
+            }
+          }}
+        >
           Add Feature
         </Button>
       </Flex>
@@ -239,14 +266,42 @@ export default function Features() {
                     aria-label="Edit feature"
                     icon={<EditIcon />}
                     size="sm"
-                    onClick={(event) => handleEdit(feature._id, event)}
+                    onClick={(event) => {
+                      if (canEditData) {
+                        // Check if the user has permission to edit feature
+                        handleEdit(feature._id, event);
+                      } else {
+                        Toast({
+                          title:
+                            "You don't have permission to edit this feature",
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
+                      }
+                    }}
                   />
                   <IconButton
                     aria-label="Delete feature"
                     icon={<DeleteIcon />}
                     size="sm"
                     colorScheme="red"
-                    onClick={(event) => confirmDelete(feature._id, event)}
+                    onClick={(event) => {
+                      if (canDeleteData) {
+                        // Check if the user has permission to delete feature
+                        confirmDelete(feature._id, event);
+                      } else {
+                        Toast({
+                          title:
+                            "You don't have permission to delete this feature",
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
+                      }
+                    }}
                   />
                 </HStack>
 

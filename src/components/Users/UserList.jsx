@@ -24,6 +24,7 @@ import {
   Flex,
   Select,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import {
   selectUserData,
@@ -37,6 +38,7 @@ import EditUser from "./EditUser";
 import AddUser from "./AddUser";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function UserList() {
   const dispatch = useDispatch();
@@ -46,6 +48,7 @@ export default function UserList() {
   const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const cancelRef = React.useRef();
+  const Toast = useToast();
 
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -246,6 +249,14 @@ export default function UserList() {
     return pages;
   };
 
+  const userManageMentPermissions = getModulePermissions("Users");
+  if (!userManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = userManageMentPermissions.create;
+  const canDeleteData = userManageMentPermissions.delete;
+  const canEditData = userManageMentPermissions.update;
+
   return (
     <Box p={4}>
       {/* Responsive Header */}
@@ -280,7 +291,23 @@ export default function UserList() {
             <option value="Inactive">Inactive</option>
           </Select>
 
-          <Button onClick={handleAdd} colorScheme="green" width="100%">
+          <Button
+            onClick={() => {
+              if (canAddData) {
+                handleAdd();
+              } else {
+                Toast({
+                  title: "You don't have permission to add user",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                  position: "top-right",
+                });
+              }
+            }}
+            colorScheme="green"
+            width="100%"
+          >
             Add User
           </Button>
         </Flex>
@@ -346,14 +373,40 @@ export default function UserList() {
                         colorScheme="blue"
                         mr={2}
                         size="md"
-                        onClick={() => handleEdit(user)}
+                        onClick={() => {
+                          if (canEditData) {
+                            handleEdit(user);
+                          } else {
+                            Toast({
+                              title:
+                                "You don't have permission to edit this user",
+                              status: "error",
+                              duration: 3000,
+                              isClosable: true,
+                              position: "top-right",
+                            });
+                          }
+                        }}
                       >
                         Edit
                       </Button>
                       <Button
                         colorScheme="red"
                         size="md"
-                        onClick={() => handleDelete(user)}
+                        onClick={() => {
+                          if (canDeleteData) {
+                            handleDelete(user);
+                          } else {
+                            Toast({
+                              title:
+                                "You don't have permission to delete this user",
+                              status: "error",
+                              duration: 3000,
+                              isClosable: true,
+                              position: "top-right",
+                            });
+                          }
+                        }}
                       >
                         Delete
                       </Button>

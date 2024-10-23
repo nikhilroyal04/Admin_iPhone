@@ -15,6 +15,7 @@ import {
   HStack,
   Input,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,6 +30,7 @@ import Error502 from "../Not_Found/Error502";
 import TimeConversion from "../../utils/timeConversion";
 import EditOrder from "./EditOrder";
 import ViewOrder from "./ViewOrder";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function OrderList() {
   const dispatch = useDispatch();
@@ -52,6 +54,7 @@ export default function OrderList() {
   const totalPages = useSelector(selectTotalPages);
   const isLoading = useSelector(selectOrderLoading);
   const error = useSelector(selectOrderError);
+  const Toast = useToast();
 
   // Fetch order data when the component mounts
   useEffect(() => {
@@ -204,6 +207,12 @@ export default function OrderList() {
     return pages;
   };
 
+  const orderManageMentPermissions = getModulePermissions("Orders");
+  if (!orderManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canEditData = orderManageMentPermissions.update;
+
   return (
     <>
       <Box p={4} overflow="auto">
@@ -306,8 +315,21 @@ export default function OrderList() {
                         <Td>
                           <Button
                             colorScheme="blue"
-                            onClick={() => handleEditClick(order)}
                             size="sm"
+                            onClick={() => {
+                              if (canEditData) {
+                                handleEditClick(user);
+                              } else {
+                                Toast({
+                                  title:
+                                    "You don't have permission to edit this order",
+                                  status: "error",
+                                  duration: 3000,
+                                  isClosable: true,
+                                  position: "top-right",
+                                });
+                              }
+                            }}
                           >
                             Edit
                           </Button>

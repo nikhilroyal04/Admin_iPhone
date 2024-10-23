@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  useToast,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,12 +29,14 @@ import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
 import EditAddress from "./EditAddress";
 import AddAddress from "./AddAddress";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function Address() {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const Toast = useToast();
 
   // For handling Add and Edit modals
   const {
@@ -209,6 +212,14 @@ export default function Address() {
     return <Error502 />;
   }
 
+  const addressManageMentPermissions = getModulePermissions("Address");
+  if (!addressManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = addressManageMentPermissions.create;
+  const canDeleteData = addressManageMentPermissions.delete;
+  const canEditData = addressManageMentPermissions.update;
+
   return (
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
@@ -218,7 +229,24 @@ export default function Address() {
         <Flex spacing={4}>
           {/* <Input placeholder="Search by username" width="65%" mr={2} /> */}
 
-          <Button colorScheme="teal" onClick={onAddOpen} mt={2}>
+          <Button
+            colorScheme="teal"
+            onClick={() => {
+              if (canAddData) {
+                // Check if the user has permission to add address
+                onAddOpen();
+              } else {
+                Toast({
+                  title: "You don't have permission to add address",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                  position: "top-right",
+                });
+              }
+            }}
+            mt={2}
+          >
             Add Address
           </Button>
         </Flex>
@@ -244,16 +272,42 @@ export default function Address() {
               <Flex mt={2}>
                 <Button
                   colorScheme="blue"
-                  onClick={() => handleEdit(address)}
                   size="sm"
+                  onClick={() => {
+                    if (canEditData) {
+                      // Check if the user has permission to edit address
+                      handleEdit(address);
+                    } else {
+                      Toast({
+                        title: "You don't have permission to edit address",
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                        position: "top-right",
+                      });
+                    }
+                  }}
                 >
                   Edit
                 </Button>
                 <Button
                   colorScheme="red"
                   ml={2}
-                  onClick={() => handleDelete(address)}
                   size="sm"
+                  onClick={() => {
+                    if (canDeleteData) {
+                      // Check if the user has permission to delete address
+                      handleDelete(address);
+                    } else {
+                      Toast({
+                        title: "You don't have permission to delete address",
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                        position: "top-right",
+                      });
+                    }
+                  }}
                 >
                   Delete
                 </Button>

@@ -22,6 +22,7 @@ import {
   Select,
   Grid,
   GridItem,
+  useToast,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -35,6 +36,7 @@ import AddCategory from "./AddCategory";
 import EditCategory from "./EditCategory";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function CategoryList() {
   const dispatch = useDispatch();
@@ -61,6 +63,7 @@ export default function CategoryList() {
   const categories = useSelector(selectCategoryData);
   const isLoading = useSelector(selectCategoryLoading);
   const error = useSelector(selectCategoryError);
+  const Toast = useToast();
 
   // Fetch category data when the component mounts
   useEffect(() => {
@@ -91,13 +94,21 @@ export default function CategoryList() {
     }
   };
 
+  const categoryManageMentPermissions = getModulePermissions("Categories");
+  if (!categoryManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = categoryManageMentPermissions.create;
+  const canDeleteData = categoryManageMentPermissions.delete;
+  const canEditData = categoryManageMentPermissions.update;
+
   return (
     <Box p={4}>
       {/* Header with Title and Add Category Button */}
 
       <Flex justify="space-between" align="center" mb={4}>
         <Grid
-          templateColumns={{ base: "1fr", md: "1fr 2fr"}} // Two columns for md and above
+          templateColumns={{ base: "1fr", md: "1fr 2fr" }} // Two columns for md and above
           gap={4}
           width="100%"
         >
@@ -109,22 +120,35 @@ export default function CategoryList() {
           {/* Flex container for Filter and Add Category Button */}
           <GridItem>
             <Flex
-              direction={{ base: "column", sm: "row" }} 
-              justifyContent="flex-end" 
+              direction={{ base: "column", sm: "row" }}
+              justifyContent="flex-end"
               gap={2}
             >
               <Select
                 placeholder="Filter by status"
                 onChange={(e) => setFilterStatus(e.target.value)}
-                width={{ base: "100%", md: "auto" }} 
+                width={{ base: "100%", md: "auto" }}
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </Select>
               <Button
-                onClick={onAddOpen}
                 colorScheme="green"
                 width={{ base: "100%", md: "auto" }}
+                onClick={() => {
+                  if (canAddData) {
+                    // Check if the user has permission to add category
+                    onAddOpen();
+                  } else {
+                    Toast({
+                      title: "You don't have permission to add category",
+                      status: "error",
+                      duration: 3000,
+                      isClosable: true,
+                      position: "top-right",
+                    });
+                  }
+                }}
               >
                 Add Category
               </Button>
@@ -134,7 +158,7 @@ export default function CategoryList() {
       </Flex>
 
       <SimpleGrid columns={[1, 2, 2, 2, 3]} spacing={4}>
-      {filteredCategories.map((category) => (
+        {filteredCategories.map((category) => (
           <Box
             key={category.id}
             borderWidth="1px"
@@ -173,8 +197,19 @@ export default function CategoryList() {
                 size="sm"
                 mr={2}
                 onClick={() => {
-                  setSelectedCategory(category); // Set selected category for editing
-                  onEditOpen(); // Open edit modal
+                  if (canEditData) {
+                    // Check if the user has permission to edit category
+                    setSelectedCategory(category);
+                    onEditOpen();
+                  } else {
+                    Toast({
+                      title: "You don't have permission to edit this category",
+                      status: "error",
+                      duration: 3000,
+                      isClosable: true,
+                      position: "top-right",
+                    });
+                  }
                 }}
               >
                 Edit
@@ -183,8 +218,20 @@ export default function CategoryList() {
                 colorScheme="red"
                 size="sm"
                 onClick={() => {
-                  setCategoryToDelete(category._id);
-                  onDeleteOpen(); // Open delete confirmation modal
+                  if (canDeleteData) {
+                    // Check if the user has permission to delete category
+                    setCategoryToDelete(category._id);
+                    onDeleteOpen();
+                  } else {
+                    Toast({
+                      title:
+                        "You don't have permission to delete this category",
+                      status: "error",
+                      duration: 3000,
+                      isClosable: true,
+                      position: "top-right",
+                    });
+                  }
                 }}
               >
                 Delete

@@ -174,8 +174,8 @@ export default function EditUser({ isOpen, onClose, user }) {
           <FormControl isRequired>
             <FormLabel>Role</FormLabel>
             <Select
-              name="roleName"
-              value={formData.roleName}
+              name="role"
+              value={formData.role}
               onChange={handleChange}
             >
               {roleData.map((role) => (

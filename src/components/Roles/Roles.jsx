@@ -43,6 +43,7 @@ import { selectUser } from "../../app/features/authSlice";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
 import { useNavigate } from "react-router-dom";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function Roles() {
   const dispatch = useDispatch();
@@ -211,6 +212,14 @@ export default function Roles() {
     setSelectedRole(null);
   };
 
+  const roleManageMentPermissions = getModulePermissions("Roles");
+  if (!roleManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = roleManageMentPermissions.create;
+  const canDeleteData = roleManageMentPermissions.delete;
+  const canEditData = roleManageMentPermissions.update;
+
   return (
     <Flex
       mt={10}
@@ -249,9 +258,22 @@ export default function Roles() {
               <Flex justify="flex-end">
                 <Button
                   size="sm"
-                  onClick={handleAddRole}
                   colorScheme="blue"
-                  isLoading={isAddingRole} // Loading state for the button
+                  isLoading={isAddingRole}
+                  onClick={() => {
+                    if (canAddData) {
+                      // Check if the user has permission to add roles
+                      handleAddRole();
+                    } else {
+                      toast({
+                        title: "You don't have permission to add this role",
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                        position: "top-right",
+                      });
+                    }
+                  }}
                 >
                   Save
                 </Button>
@@ -317,12 +339,26 @@ export default function Roles() {
                       </Td>
                       <Td>
                         <Flex justify="center">
-                          {role._id !== 1 && (
+                          {role._id !== "6718ab56baf47592dbb71c8b" && (
                             <>
                               <IconButton
                                 aria-label="Edit role"
                                 icon={<EditIcon />}
-                                onClick={() => handleEditRole(role._id)}
+                                onClick={() => {
+                                  if (canEditData) {
+                                    // Check if the user has permission to edit roles
+                                    handleEditRole(role._id);
+                                  } else {
+                                    toast({
+                                      title:
+                                        "You don't have permission to edit this role",
+                                      status: "error",
+                                      duration: 3000,
+                                      isClosable: true,
+                                      position: "top-right",
+                                    });
+                                  }
+                                }}
                                 mr={2}
                                 colorScheme="blue"
                                 onMouseEnter={() =>
@@ -339,7 +375,21 @@ export default function Roles() {
                               <IconButton
                                 aria-label="Delete role"
                                 icon={<DeleteIcon />}
-                                onClick={() => handleDeleteRole(role)}
+                                onClick={() => {
+                                  if (canDeleteData) {
+                                    // Check if the user has permission to delete roles
+                                    handleDeleteRole(role._id);
+                                  } else {
+                                    toast({
+                                      title:
+                                        "You don't have permission to delete this role",
+                                      status: "error",
+                                      duration: 3000,
+                                      isClosable: true,
+                                      position: "top-right",
+                                    });
+                                  }
+                                }}
                                 colorScheme="red"
                                 onMouseEnter={() =>
                                   setIsHovered(`delete_${role._id}`)

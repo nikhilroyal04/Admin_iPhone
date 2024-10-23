@@ -22,6 +22,7 @@ import {
   Flex,
   Select,
   HStack,
+  useToast,
 } from "@chakra-ui/react";
 import {
   selectCouponData,
@@ -36,6 +37,7 @@ import EditCoupon from "./EditCoupon";
 import TimeConversion from "../../utils/timeConversion";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function Coupons() {
   const dispatch = useDispatch();
@@ -70,6 +72,7 @@ export default function Coupons() {
   const totalPages = useSelector(selectTotalPages);
   const isLoading = useSelector(selectCouponLoading);
   const error = useSelector(selectCouponError);
+  const Toast = useToast();
 
   useEffect(() => {
     dispatch(fetchCouponData(currentPage));
@@ -235,6 +238,14 @@ export default function Coupons() {
     return pages;
   };
 
+  const couponManageMentPermissions = getModulePermissions("Coupons");
+  if (!couponManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = couponManageMentPermissions.create;
+  const canDeleteData = couponManageMentPermissions.delete;
+  const canEditData = couponManageMentPermissions.update;
+
   return (
     <Box p={4} overflow="auto">
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
@@ -251,7 +262,23 @@ export default function Coupons() {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </Select>
-          <Button colorScheme="teal" onClick={onAddOpen}>
+          <Button
+            colorScheme="teal"
+            onClick={() => {
+              if (canAddData) {
+                // Check if the user has permission to add coupon
+                onAddOpen();
+              } else {
+                Toast({
+                  title: "You don't have permission to add coupon",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                  position: "top-right",
+                });
+              }
+            }}
+          >
             Add Coupon
           </Button>
         </Flex>
@@ -325,7 +352,19 @@ export default function Coupons() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleEdit(coupon); // Open edit modal
+                          if (canEditData) {
+                            // Check if the user has permission to edit coupon
+                            handleEdit(coupon);
+                          } else {
+                            Toast({
+                              title:
+                                "You don't have permission to edit this coupon",
+                              status: "error",
+                              duration: 3000,
+                              isClosable: true,
+                              position: "top-right",
+                            });
+                          }
                         }}
                         mr={2}
                       >
@@ -336,8 +375,20 @@ export default function Coupons() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setCouponToDelete(coupon._id);
-                          onDeleteOpen(); // Open delete confirmation modal
+                          if (canDeleteData) {
+                            // Check if the user has permission to delete coupon
+                            setCouponToDelete(coupon._id);
+                            onDeleteOpen();
+                          } else {
+                            Toast({
+                              title:
+                                "You don't have permission to delete this coupon",
+                              status: "error",
+                              duration: 3000,
+                              isClosable: true,
+                              position: "top-right",
+                            });
+                          }
                         }}
                       >
                         Delete

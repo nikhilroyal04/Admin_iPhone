@@ -66,10 +66,11 @@ export const fetchUserProfile = (token) => async (dispatch) => {
     );
     const userData = response.data.data;
 
-    // Check if the user status is active before setting the user profile
+    // Check if the user status is inactive or role status is inactive
     if (userData.status === "Inactive") {
       dispatch(setLoginError("User account is inactive."));
-      dispatch(setLogout()); // Logout if the user is inactive
+    } else if (userData.roleAttribute.status == "Inactive") {
+      dispatch(setLoginError("Role is no longer active."));
     } else {
       dispatch(setUserProfile(userData));
     }
@@ -87,7 +88,6 @@ export const loginUser = (credentials) => async (dispatch) => {
     );
 
     const { token } = response.data.data;
-    localStorage.setItem("userToken", token);
     dispatch(setLoginSuccess(null));
 
     // Fetch user profile after successful login

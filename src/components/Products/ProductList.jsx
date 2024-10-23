@@ -21,6 +21,7 @@ import {
   Flex,
   Input,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -40,6 +41,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Loader from "../Not_Found/Loader";
 import Error502 from "../Not_Found/Error502";
+import { getModulePermissions } from "../../utils/permissions";
 
 export default function ProductList() {
   const dispatch = useDispatch();
@@ -57,6 +59,7 @@ export default function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(null);
+  const Toast = useToast();
 
   useEffect(() => {
     // Fetch category data when the component mounts
@@ -222,6 +225,14 @@ export default function ProductList() {
     return pages;
   };
 
+  const productManageMentPermissions = getModulePermissions("Products");
+  if (!productManageMentPermissions) {
+    return <Error502 />;
+  }
+  const canAddData = productManageMentPermissions.create;
+  const canDeleteData = productManageMentPermissions.delete;
+  const canEditData = productManageMentPermissions.update;
+
   return (
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
@@ -263,8 +274,21 @@ export default function ProductList() {
           </Select>
           <Button
             colorScheme="teal"
-            onClick={() => navigate("addproduct")}
             width={{ base: "100%", sm: "auto" }}
+            onClick={() => {
+              if (canAddData) {
+                // Check if the user has permission to add product
+                navigate("addproduct");
+              } else {
+                Toast({
+                  title: "You don't have permission to add product",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                  position: "top-right",
+                });
+              }
+            }}
           >
             Add Product
           </Button>
@@ -328,14 +352,42 @@ export default function ProductList() {
                 <Box mt={4}>
                   <Button
                     colorScheme="blue"
-                    onClick={() => handleEditClick(product._id)}
                     mr={2}
+                    onClick={() => {
+                      if (canEditData) {
+                        // Check if the user has permission to edit product
+                        handleEditClick(product._id);
+                      } else {
+                        Toast({
+                          title:
+                            "You don't have permission to edit this product",
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
+                      }
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     colorScheme="red"
-                    onClick={() => handleDeleteClick(product._id)}
+                    onClick={() => {
+                      if (canDeleteData) {
+                        // Check if the user has permission to delete product
+                        handleDeleteClick(product._id);
+                      } else {
+                        Toast({
+                          title:
+                            "You don't have permission to delete this product",
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
+                      }
+                    }}
                   >
                     Delete
                   </Button>
